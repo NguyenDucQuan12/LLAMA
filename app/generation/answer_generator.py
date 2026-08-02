@@ -13,11 +13,6 @@ Sau đó file:
 3. Yêu cầu Llama trả JSON theo schema.
 4. Kiểm tra output.
 5. Loại citation không tồn tại.
-
-Chạy test từ thư mục gốc project:
-
-    python3 -m generation.nswer_generator --mode validate
-    python3 -m generation.answer_generator --mode ollama
 """
 
 import argparse
@@ -32,25 +27,21 @@ from generation.context_builder import GenerationSource
 
 
 # ============================================================
-# 1. SCHEMA CẤU TRÚC CÂU TRẢ LỜI
+# SCHEMA CẤU TRÚC CÂU TRẢ LỜI
 # ============================================================
 
 ANSWER_JSON_SCHEMA: dict[str, Any] = {
     # Kết quả cấp cao nhất phải là JSON object.
     "type": "object",
-
     # Các trường được phép xuất hiện.
     "properties": {
-        # Trường answer: Nội dung của câu trả lời
-        "answer": {
+        "answer": {                              # Trường answer: Nội dung chính của câu trả lời
             "type": "string",
         },
-        # Trường insufficient_context: Khi tài liệu không đủ thông tin
-        "insufficient_context": {
+        "insufficient_context": {                # Trường insufficient_context: Cờ báo thiếu dữ liệu.
             "type": "boolean",
         },
-        # Trường citations: Danh sách các nguồn cho câu trả lời trên
-        "citations": {
+        "citations": {                          # Trường citations: Danh sách các nguồn cho câu trả lời trên
             "type": "array",                    # Định dạng là danh sách
             "items": {                          # Cấu hình cho mỗi item trong danh sách
                 "type": "object",
@@ -62,7 +53,7 @@ ANSWER_JSON_SCHEMA: dict[str, Any] = {
                         "type": "string",
                     },
                 },
-                "required": [                   # Yêu cầu bắt buộc phải có các trường sau
+                "required": [                   # Yêu cầu bắt buộc phải có các trường sau trong danh sách citation
                     "source_label",
                     "evidence",
                 ],
@@ -70,7 +61,7 @@ ANSWER_JSON_SCHEMA: dict[str, Any] = {
             },
         },
     },
-    # Ba trường bắt buộc phải tồn tại.
+    # Ba trường chính bắt buộc phải tồn tại.
     "required": [
         "answer",
         "insufficient_context",
@@ -82,7 +73,7 @@ ANSWER_JSON_SCHEMA: dict[str, Any] = {
 
 
 # ============================================================
-# 2. CLASS SINH CÂU TRẢ LỜI
+# CLASS SINH CÂU TRẢ LỜI
 # ============================================================
 
 class RagAnswerGenerator:
@@ -147,9 +138,7 @@ class RagAnswerGenerator:
 
         # Có sources nhưng context rỗng thường là lỗi ContextBuilder.
         if not normalized_context:
-            raise ValueError(
-                "sources có dữ liệu nhưng context_text đang rỗng."
-            )
+            raise ValueError("Nguồn tài liệu có dữ liệu nhưng context_text đang rỗng.")
 
         # ----------------------------------------------------
         # TẠO SYSTEM PROMPT ĐỂ ĐẶT CÁC QUY TẮC CÓ MỨC ƯU TIÊN CAO NHẤT
@@ -173,7 +162,7 @@ class RagAnswerGenerator:
         """.strip()
 
         # ----------------------------------------------------
-        # TẠO USER PROMPT
+        # TẠO USER PROMPT, NƠI CÂU HỎI VÀ CONTEXT ĐƯỢC ĐẶT VÀO
         # ----------------------------------------------------
 
         user_message = f"""
@@ -192,8 +181,7 @@ class RagAnswerGenerator:
         # GỌI OLLAMA
         # ----------------------------------------------------
 
-        # chat_json() truyền schema vào trường format của /api/chat,
-        # rồi parse message.content thành dictionary Python.
+        # chat_json() truyền schema vào trường format của /api/chat, rồi parse message.content thành dictionary Python.
         model_output = await self.ollama_client.chat_json(
             messages=[
                 {
@@ -209,13 +197,10 @@ class RagAnswerGenerator:
         )
 
         # ----------------------------------------------------
-        # KIỂM TRA OUTPUT
+        # XÁC THỰC CÂU TRẢ LỜI TỪ LLAMA
         # ----------------------------------------------------
 
-        return self._validate_and_filter_output(
-            model_output=model_output,
-            sources=sources,
-        )
+        return self._validate_and_filter_output(model_output=model_output, sources=sources)
 
     def _validate_and_filter_output( self, model_output: dict[str, Any], sources: list[GenerationSource], ) -> dict[str, Any]:
         """
@@ -240,7 +225,7 @@ class RagAnswerGenerator:
         if not isinstance(citations, list):
             raise RuntimeError( "Llama output thiếu citations dạng list." )
 
-        # Loại bỏ khoảng trắng thừa nêú có
+        # Loại bỏ khoảng trắng thừa nếu có
         normalized_answer = answer.strip()
 
         if not normalized_answer:
@@ -254,9 +239,7 @@ class RagAnswerGenerator:
         }
 
         if not allowed_labels:
-            raise RuntimeError(
-                "sources tồn tại nhưng không có source_label hợp lệ."
-            )
+            raise RuntimeError("Nguồn tài liệu tồn tại nhưng không có nhãn tài liệu hợp lệ.")
 
         filtered_citations: list[dict[str, str]] = []
         seen_labels: set[str] = set()
@@ -283,7 +266,7 @@ class RagAnswerGenerator:
             # Bỏ citation không có nội dung.
             if not evidence:
                 continue
-            # Đưa citation này vào danh sách để đưa vào nội dung trar lời
+            # Đưa citation này vào danh sách để đưa vào nội dung trả lời
             filtered_citations.append(
                 {
                     "source_label": source_label,
