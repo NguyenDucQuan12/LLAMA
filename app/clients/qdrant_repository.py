@@ -2,18 +2,16 @@ from __future__ import annotations
 
 """
 Repository quản lý toàn bộ thao tác với Qdrant.
-
-Tầng dịch vụ không nên gọi Qdrant client trực tiếp ở nhiều nơi vì điều đó
-làm phân tán logic collection, payload index, filter và version hóa.
 """
 
 import logging
 from collections.abc import Sequence
 from typing import Any
 import asyncio
-
+import math
+import sys
+import json
 from qdrant_client import AsyncQdrantClient, models
-
 from config import Settings, get_settings
 
 
@@ -27,6 +25,8 @@ class QdrantRepository:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self.collection_name = self.settings.qdrant_collection_name
+        self.vector_dimensions = self.settings.embedding_vector_dimensions
 
         self.client = self._create_qdrant_client()
 
@@ -41,11 +41,8 @@ class QdrantRepository:
         use_local_mode=False:
             Kết nối đến Qdrant server qua HTTP.
         """
-        # Ngăn nhiều coroutine trong cùng process đồng thời tạo
-        # collection và payload indexes.
+        # Ngăn nhiều coroutine trong cùng process đồng thời tạo collection và payload indexes.
         self._collection_lock = asyncio.Lock()
-        self.collection_name = self.settings.qdrant_collection_name
-        self.vector_dimensions = self.settings.embedding_vector_dimensions
 
         if use_local_mode:
             return AsyncQdrantClient(
@@ -63,7 +60,6 @@ class QdrantRepository:
         """
         Đóng Qdrant client.
         """
-
         await self.client.close()
 
     async def ensure_collection(self) -> None:
@@ -93,25 +89,20 @@ class QdrantRepository:
                     )
                 except Exception:
                     # Có thể process khác vừa tạo collection.
-                    exists_after_error = (
-                        await self.client.collection_exists(collection_name=self.collection_name)
-                    )
+                    exists_after_error = await self.client.collection_exists(collection_name=self.collection_name)
 
                     if not exists_after_error:
                         raise
 
                     logger.info("Collection `%s` đã được process khác tạo.",self.collection_name,)
 
-            # Lấy thông tin collection
+            # Lấy thông tin collection nếu nó đã tồn tại, để kiểm tra số chiều vector có khớp với cấu hình hay không
             info = await self.client.get_collection(collection_name=self.collection_name)
 
             # so sánh vector có khớp không
             vectors_config = info.config.params.vectors
             if isinstance(vectors_config, dict):
-                raise RuntimeError(
-                    "Collection đang dùng named vectors nhưng "
-                    "repository đang dùng single vector."
-                )
+                raise RuntimeError("Collection đang dùng named vectors nhưng repository đang dùng single vector.")
 
             # Lấy thông tin số chiều của vector
             actual_dimension = getattr(vectors_config, "size", None)
