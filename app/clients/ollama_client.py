@@ -14,7 +14,6 @@ import logging
 import math
 from collections.abc import Mapping, Sequence
 from typing import Any
-
 import httpx
 
 # Mở comment 3 dòng bên dưới mỗi khi test (Chạy trực tiếp hàm if __main__)
@@ -43,6 +42,9 @@ class OllamaClient:
     }
 
     def __init__(self, settings: Settings) -> None:
+        """
+        Khởi tạo OllamaClient với cấu hình từ Settings.
+        """
         # khai báo các biến cấu hình để tránh gọi settings nhiều lần.
         self.settings = settings
         # Tạo HTTP client bất đồng bộ với timeout và base_url.
@@ -55,17 +57,16 @@ class OllamaClient:
         """
         Đóng connection pool của HTTP client.
         """
-
         await self.http_client.aclose()
 
     async def embed_texts( self, texts: Sequence[str]) -> list[list[float]]:
         """
         Tạo vector cho một danh sách text.
 
-        Lưu ý:
+        Khi embeding với model nomic-embed-text-v2-moe, theo tài liệu từ trang chủ của Nomic, có một số lưu ý quan trọng:
         - Document phải có prefix `search_document: `.
         - Query phải có prefix `search_query: `.
-        - `truncate=False` để model báo lỗi nếu text quá dài thay vì cắt mất phần cuối một cách im lặng.
+        - Model embedding trả về vector đã được L2-normalized, nghĩa là norm của vector gần bằng 1. Do đó khi lưu vào Qdrant, không cần phải normalize lại.
 
         Ví dụ đầu vào là các chunk:  
         ```python
@@ -92,27 +93,26 @@ class OllamaClient:
         for index, text in enumerate(texts):
             # Kiểm tra kiểu dữ liệu.
             if not isinstance(text, str):
-                raise TypeError(
-                    f"Embedding input tại vị trí {index} phải là string."
-                )
+                raise TypeError(f"Dữ liệu để embedding tại vị trí {index} phải là string.")
+            
             # Loại bỏ khoảng trắng đầu/cuối.
             stripped_text = text.strip()
             # Sau khi loại bỏ khoảng trắng mà chuỗi không còn lý tự thì báo lỗi.
             if not stripped_text:
-                raise ValueError(
-                    f"Embedding input tại vị trí {index} đang rỗng."
-                )
+                raise ValueError(f"Dữ liệu để embedding tại vị trí {index} đang rỗng.")
 
+            # Thêm dữ liệu đã chuẩn hóa vào danh sách normalized_texts để gửi đến Ollama.
             normalized_texts.append(stripped_text)
 
         # Tạo request body cho Ollama theo cấu trúc API.
         request_body: dict[str, Any] = {
             "model": self.settings.embedding_model_name,
             "input": normalized_texts,
-            "truncate": False,
-            "keep_alive": self.settings.ollama_keep_alive,
+            "truncate": False,                                             # `truncate=False` để model báo lỗi nếu text quá dài thay vì model tự cắt mất phần cuối một cách im lặng.
+            "keep_alive": self.settings.ollama_keep_alive,                 # Giữ kết nối HTTP mở để tái sử dụng cho các request tiếp theo.
             "dimensions": self.settings.embedding_vector_dimensions,
         }
+
         # Gửi request POST và retry nếu lỗi mạng hoặc lỗi server tạm thời.
         response_data = await self._post_json_with_retry(
             endpoint="/api/embed",
@@ -122,14 +122,10 @@ class OllamaClient:
         embeddings = response_data.get("embeddings")
 
         if not isinstance(embeddings, list):
-            raise RuntimeError(
-                "Ollama không trả về trường `embeddings` hợp lệ."
-            )
+            raise RuntimeError("Ollama không trả về trường `embeddings` hợp lệ.")
+        
         # Kiểm tra số lượng vector và chất lượng vector trước khi trả về.
-        self._validate_embeddings(
-            embeddings=embeddings,
-            expected_count=len(normalized_texts),
-        )
+        self._validate_embeddings(embeddings=embeddings, expected_count=len(normalized_texts),)
 
         return embeddings
 
@@ -138,16 +134,16 @@ class OllamaClient:
         """
         Gọi `/api/chat` và bắt model trả JSON theo schema.
 
-        Structured output giúp tầng ứng dụng không phải cố gắng tách JSON
-        từ một đoạn văn tự do.
+        Structured output giúp tầng ứng dụng không phải cố gắng tách JSON từ một đoạn văn tự do.
         """
-        # Lấy tên model để gọi
+        # Lấy tên model để gọi đoạn chat. Nếu không truyền vào thì dùng model mặc định trong settings.
         selected_model_name = (
             model_name
             if model_name is not None
             else self.settings.llama_model_name
         )
-
+        # Lấy nhiệt độ để gọi đoạn chat, giúp điều chỉnh độ sáng tạo của model. Nếu không truyền vào thì dùng nhiệt độ mặc định trong settings.
+        # Temperature càng cao thì model càng sáng tạo, nhưng cũng dễ trả về kết quả không chính xác. Temperature thấp thì model trả kết quả an toàn hơn.
         selected_temperature = (
             temperature
             if temperature is not None
@@ -189,6 +185,7 @@ class OllamaClient:
                 "num_predict": self.settings.llama_max_generated_tokens,
             },
         }
+
         # Gửi request POST và retry nếu lỗi mạng hoặc lỗi server tạm thời.
         response_data = await self._post_json_with_retry(
             endpoint="/api/chat",
@@ -198,9 +195,7 @@ class OllamaClient:
         message = response_data.get("message")
 
         if not isinstance(message, Mapping):
-            raise RuntimeError(
-                "Ollama không trả về trường `message` hợp lệ."
-            )
+            raise RuntimeError("Ollama không trả về trường `message` hợp lệ.")
 
         content = message.get("content")
 
@@ -254,9 +249,7 @@ class OllamaClient:
                 response_json = response.json()
 
                 if not isinstance(response_json, dict):
-                    raise RuntimeError(
-                        "Ollama response không phải JSON object."
-                    )
+                    raise RuntimeError("Ollama response không phải JSON object.")
 
                 return response_json
 
@@ -273,6 +266,7 @@ class OllamaClient:
                             "Không thể gọi Ollama do lỗi request hoặc cấu hình. "
                             f"HTTP {status_code}: {response_body}"
                         ) from exception
+                    
                 # Nếu vượt quá số lần retry thì break vòng lặp và raise RuntimeError.
                 if attempt_number >= self.settings.ollama_max_retries:
                     break
@@ -292,11 +286,7 @@ class OllamaClient:
 
         raise RuntimeError(f"Không thể kết nối Ollama sau {self.settings.ollama_max_retries} lần retry.") from last_exception
 
-    def _validate_embeddings(
-        self,
-        embeddings: Any,
-        expected_count: int,
-    ) -> None:
+    def _validate_embeddings(self, embeddings: Any, expected_count: int) -> None:
         """
         Kiểm tra vector sau khi nhận được từ model embedding, và trước khi đưa các vector này vào Qdrant.
 
@@ -308,23 +298,17 @@ class OllamaClient:
         """
         # Kiểm tra số lượng vector.
         if len(embeddings) != expected_count:
-            raise RuntimeError(
-                f"Số vector không khớp số embedding input: {len(embeddings)} != {expected_count}."
-            )
+            raise RuntimeError(f"Số vector trả về từ model không khớp số embedding đầu vào: {len(embeddings)} != {expected_count}.")
 
         # Kiểm tra từng vector.
         for vector_index, vector in enumerate(embeddings):
             # Nếu vector không phải list thì raise TypeError. Vì Ollama trả về embedding là list of float.
             if not isinstance(vector, list):
-                raise TypeError(
-                    f"Vector tại vị trí {vector_index} không phải list."
-                )
+                raise TypeError(f"Vector tại vị trí {vector_index} không phải định dạng list.")
 
             # Kiểm tra dimension của vector. Mỗi collection trong Qdrant yêu cầu dimension cố định. Nếu vector không đúng dimension thì raise RuntimeError.
             if len(vector) != self.settings.embedding_vector_dimensions:
-                raise RuntimeError(
-                    f"Vector {vector_index} có dimension {len(vector)}, nhưng collection yêu cầu {self.settings.embedding_vector_dimensions}."
-                )
+                raise RuntimeError(f"Vector {vector_index} có dimension {len(vector)}, nhưng collection yêu cầu {self.settings.embedding_vector_dimensions}.")
 
             # Khai báo một list mới để chứa các giá trị float đã chuẩn hóa. Nếu vector có NaN hoặc Infinity thì raise RuntimeError.
             numeric_vector: list[float] = []
@@ -332,22 +316,17 @@ class OllamaClient:
             for value in vector:
                 # Kiểm tra từng giá trị trong vector. Nếu giá trị không phải số thì raise TypeError. Nếu giá trị là NaN hoặc Infinity thì raise RuntimeError.
                 if not isinstance(value, (int, float)):
-                    raise TypeError(
-                        f"Vector {vector_index} chứa giá trị không phải số."
-                    )
+                    raise TypeError(f"Vector {vector_index} chứa giá trị không phải số.")
+                
                 # Ép kiểu về float
                 numeric_value = float(value)
                 # Kiểm tra NaN hoặc Infinity. Nếu có thì raise RuntimeError.
                 if not math.isfinite(numeric_value):
-                    raise RuntimeError(
-                        f"Vector {vector_index} chứa NaN hoặc Infinity."
-                    )
+                    raise RuntimeError(f"Vector {vector_index} chứa NaN hoặc Infinity.")
 
                 numeric_vector.append(numeric_value)
             # Tính norm của vector. Ollama trả embedding đã L2-normalized, nên norm phải gần 1. Nếu norm không trong khoảng [0.97, 1.03] thì raise RuntimeError.
-            vector_norm = math.sqrt(
-                sum(value * value for value in numeric_vector)
-            )
+            vector_norm = math.sqrt(sum(value * value for value in numeric_vector))
 
             if not 0.97 <= vector_norm <= 1.03:
                 raise RuntimeError(
