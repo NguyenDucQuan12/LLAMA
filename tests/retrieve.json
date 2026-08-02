@@ -1,0 +1,256 @@
+[
+  {
+    "id": "6f336b29-8d5e-50be-b3de-448e11e2b058",
+    "score": 0.6554623081238782,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 8,
+    "headings": [
+      "1 Nhận hàng",
+      "1.3 Gọi Robot",
+      "1.3.4 Gọi robot đến vị trí nhận hàng"
+    ],
+    "page_numbers": [],
+    "text": "Khi đơn hàng đến và đã được dán barcode chính xác, ta sử dụng chức năng\n**Arrive in**\nđể gọi robot mang pallet đến nhận hàng.\nHình 14: Chức năng arrive in\nSau khi truy cập giao diện chức năng\n**arrive in**\n, ta cần lưu ý một số điều sau:\nHình 15: Chọn vị trí robot đến\nTại góc trên cùng bên phải có chữ:\n**E1 Out,**\nđây là vị trí mà chúng ta sẽ gọi robot đến, ta cần thay đổi vị trí này phù hợp với từng vị trí mà đơn hàng đến theo từng kho. Ví dụ tại nhà máy Viva, khu vực đơn hàng được vận chuyển đến sẽ là\n**H Out**\n. Ta thay đổi nó thành\n**H Out**\n, và sử dụng chức năng\n**Call the Robot**\n.\nHình 16: Thay đổi vị trí đến phù hợp và gọi robot\nSau khi gọi Robot, Robot sẽ tự động lấy thùng Pallet rỗng ở bất kỳ vị trí nào trong kho hàng và mang Pallet đó đến vị trí\n**H Out**\nđể nhân viên chất hàng lên đấy. Các cuộn vải đã được dán barcode sẽ cho vào Pallet.\nVới mỗi Pallet sẽ được đánh số vị trí và có mã riêng. Ví dụ : 0168 là mã của Pallet, L3-1 là vị trí của Pallet này\nHình 17: Một pallet được đánh dấu vị trí và mã\nSau khi Robot mang Pallet đến, tại giao diện\n**Arrive in,**\nta nhập mã được dán lên Pallet (4 chữ số: 0168) rồi ấn OK hoặc Enter để vào Pallet ấy như hình ảnh bên dưới.\nHình 18: Nhập mã của Pallet\nSau đó quay lại mục nhập barcode cho từng cuộn vải cho vào Pallet.\nHình 19: Nhập barcode cho từng cuộn vải\n**Sau đó ấn OK/Enter để xác nhận đưa cuộn vải này vào Pallet: 0168 L3-1.**\nHình 20: Đưa cuộn vải vào Pallet tương ứng\nTương tự với các cuộn vải còn lại trong Pallet cho đến khi hết. Sau đó ta ấn Submit để nhập tổng trọng lượng của Pallet.\nHình 21: Nhập tổng trọng lượng của Pallet",
+    "contextualized_text": "1 Nhận hàng\n1.3 Gọi Robot\n1.3.4 Gọi robot đến vị trí nhận hàng\nKhi đơn hàng đến và đã được dán barcode chính xác, ta sử dụng chức năng\n**Arrive in**\nđể gọi robot mang pallet đến nhận hàng.\nHình 14: Chức năng arrive in\nSau khi truy cập giao diện chức năng\n**arrive in**\n, ta cần lưu ý một số điều sau:\nHình 15: Chọn vị trí robot đến\nTại góc trên cùng bên phải có chữ:\n**E1 Out,**\nđây là vị trí mà chúng ta sẽ gọi robot đến, ta cần thay đổi vị trí này phù hợp với từng vị trí mà đơn hàng đến theo từng kho. Ví dụ tại nhà máy Viva, khu vực đơn hàng được vận chuyển đến sẽ là\n**H Out**\n. Ta thay đổi nó thành\n**H Out**\n, và sử dụng chức năng\n**Call the Robot**\n.\nHình 16: Thay đổi vị trí đến phù hợp và gọi robot\nSau khi gọi Robot, Robot sẽ tự động lấy thùng Pallet rỗng ở bất kỳ vị trí nào trong kho hàng và mang Pallet đó đến vị trí\n**H Out**\nđể nhân viên chất hàng lên đấy. Các cuộn vải đã được dán barcode sẽ cho vào Pallet.\nVới mỗi Pallet sẽ được đánh số vị trí và có mã riêng. Ví dụ : 0168 là mã của Pallet, L3-1 là vị trí của Pallet này\nHình 17: Một pallet được đánh dấu vị trí và mã\nSau khi Robot mang Pallet đến, tại giao diện\n**Arrive in,**\nta nhập mã được dán lên Pallet (4 chữ số: 0168) rồi ấn OK hoặc Enter để vào Pallet ấy như hình ảnh bên dưới.\nHình 18: Nhập mã của Pallet\nSau đó quay lại mục nhập barcode cho từng cuộn vải cho vào Pallet.\nHình 19: Nhập barcode cho từng cuộn vải\n**Sau đó ấn OK/Enter để xác nhận đưa cuộn vải này vào Pallet: 0168 L3-1.**\nHình 20: Đưa cuộn vải vào Pallet tương ứng\nTương tự với các cuộn vải còn lại trong Pallet cho đến khi hết. Sau đó ta ấn Submit để nhập tổng trọng lượng của Pallet.\nHình 21: Nhập tổng trọng lượng của Pallet"
+  },
+  {
+    "id": "9cab4119-9ff1-533a-9f83-c9e389f99c19",
+    "score": 0.6441219341387651,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 5,
+    "headings": [
+      "1 Nhận hàng",
+      "1.3 Gọi Robot"
+    ],
+    "page_numbers": [],
+    "text": "Khi đơn hàng đã sẵn sàng cho vào pallet và cất kho, ta sử dụng robot. Để sử dụng robot ta phải dùng phần mềm trên thiết bị Android, phần mềm có tên\n**FWWSAGV**\nHình 8: Phần mềm điều khiển Robot",
+    "contextualized_text": "1 Nhận hàng\n1.3 Gọi Robot\nKhi đơn hàng đã sẵn sàng cho vào pallet và cất kho, ta sử dụng robot. Để sử dụng robot ta phải dùng phần mềm trên thiết bị Android, phần mềm có tên\n**FWWSAGV**\nHình 8: Phần mềm điều khiển Robot"
+  },
+  {
+    "id": "4262f2f7-7c28-5ab1-846f-eb5eb3ffaa8b",
+    "score": 0.5582387071175614,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 11,
+    "headings": [
+      "2 Xuất hàng",
+      "2.2 Gọi Robot"
+    ],
+    "page_numbers": [],
+    "text": "Ta quay lại phần mềm trên thiết bị Android và sử dụng chức năng\n**Production out**\n.\nHình 28: Chức năng prodiction out\nTa vào giao diện và chọn theo mã xuất nguyên liệu. Ta phải tìm kiếm mã xuất nguyên liệu đúng với lúc ta xuất nguyên liệu trên giao diện website.\nHình 29: Chọn sản phẩm muốn xuất kho\nSau đó nhấn vào sản phẩm đó, sẽ tiến vào giao diện.\nHình 30: Giao diện xuất kho\nTa chọn vào chức năng\n**OUT**\n, khi đó màn hình sẽ xuất hiện cho ta lựa chọn vị trí mà Robot sẽ đưa pallet này tới đó.\nHình 31: Lựa chọn vị trí đưa hàng xuất kho đến\nKhi chọn địa điểm thì Robot tự động đến lấy Pallet tương ứng và chở tới vị trí đã chỉ định.\nSau khi Pallet được đưa đến vị trí chỉ định, nhân viên lấy cuộn vải nào ra thì dán barcode lên vị trí trên cùng tương ứng.\nHình 32: Điền barcode cho từng sản phẩm được lấy ra\nSau đó bên dưới màn hình sẽ hiển thị\n**Sacnned code: 1**\n, Như vậy khi nhân viên lấy bao nhiêu cuộn vải ra thì đều phải quét mã vạch cho từng cuộn vải và nhấn enter. Số lượng Scanned sẽ tăng lên tương ứng.\nHình 33: Thay đổi số lượng hàng xuất kho\nTại mỗi cuộn vải, ta nhấn giữ một lúc để hiển thị bảng lựa chọn số lượng hàng xuất ra tương ứng. Sau đó nhấn OK\nCuối cùng sau khi hoàn tất việc đưa các nguyên liệu thì nhấn nút\n**Return**\nvà\n**Submit**\nđể Robot tự động đưa Pallet đó về vị trí gốc của nó.",
+    "contextualized_text": "2 Xuất hàng\n2.2 Gọi Robot\nTa quay lại phần mềm trên thiết bị Android và sử dụng chức năng\n**Production out**\n.\nHình 28: Chức năng prodiction out\nTa vào giao diện và chọn theo mã xuất nguyên liệu. Ta phải tìm kiếm mã xuất nguyên liệu đúng với lúc ta xuất nguyên liệu trên giao diện website.\nHình 29: Chọn sản phẩm muốn xuất kho\nSau đó nhấn vào sản phẩm đó, sẽ tiến vào giao diện.\nHình 30: Giao diện xuất kho\nTa chọn vào chức năng\n**OUT**\n, khi đó màn hình sẽ xuất hiện cho ta lựa chọn vị trí mà Robot sẽ đưa pallet này tới đó.\nHình 31: Lựa chọn vị trí đưa hàng xuất kho đến\nKhi chọn địa điểm thì Robot tự động đến lấy Pallet tương ứng và chở tới vị trí đã chỉ định.\nSau khi Pallet được đưa đến vị trí chỉ định, nhân viên lấy cuộn vải nào ra thì dán barcode lên vị trí trên cùng tương ứng.\nHình 32: Điền barcode cho từng sản phẩm được lấy ra\nSau đó bên dưới màn hình sẽ hiển thị\n**Sacnned code: 1**\n, Như vậy khi nhân viên lấy bao nhiêu cuộn vải ra thì đều phải quét mã vạch cho từng cuộn vải và nhấn enter. Số lượng Scanned sẽ tăng lên tương ứng.\nHình 33: Thay đổi số lượng hàng xuất kho\nTại mỗi cuộn vải, ta nhấn giữ một lúc để hiển thị bảng lựa chọn số lượng hàng xuất ra tương ứng. Sau đó nhấn OK\nCuối cùng sau khi hoàn tất việc đưa các nguyên liệu thì nhấn nút\n**Return**\nvà\n**Submit**\nđể Robot tự động đưa Pallet đó về vị trí gốc của nó."
+  },
+  {
+    "id": "f209c217-7d86-59b4-af69-c66d0dd4ab38",
+    "score": 0.5394622646277627,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 1,
+    "headings": [
+      "Mục lục"
+    ],
+    "page_numbers": [],
+    "text": "I.\tNhận hàng\t3\n1.1\tNhập thông tin đơn hàng đến\t3\n1.2\tDán mã\t5\n1.3\tGọi Robot\t5\n1.3.1 Cấu hình máy chủ\t6\n1.3.2 Đăng nhập\t8\n1.3.4 Gọi robot đến vị trí nhận hàng\t10\nII.\tXuất hàng\t17\n2.1\tXuất hàng trên giao diện web\t17\n2.2\tGọi Robot\t18\nIII.\tDi chuyển pallet\t23\n3.1 Di chuyển Pallet đến vị trí OUT\t23\n3.2 Đưa Pallet từ vị trí OUT trở về bị trí ban đầu\t26\nIV.\tThiết lập vị trí\t28\nV.\tHoàn hàng\t33\nVI.\tDi chuyển pallet bất kỳ\t37\nVII.\tChỉ định robot bất kỳ\t40\nVIII.\tCác lỗi có thể xảy ra\t41\n8.1\tLỗi vị trí\t41\n8.2\tLỗi nhiệm vụ trùng lặp\t41\n8.3\tBổ sung các lỗi khác khi gặp\t43",
+    "contextualized_text": "Mục lục\nI.\tNhận hàng\t3\n1.1\tNhập thông tin đơn hàng đến\t3\n1.2\tDán mã\t5\n1.3\tGọi Robot\t5\n1.3.1 Cấu hình máy chủ\t6\n1.3.2 Đăng nhập\t8\n1.3.4 Gọi robot đến vị trí nhận hàng\t10\nII.\tXuất hàng\t17\n2.1\tXuất hàng trên giao diện web\t17\n2.2\tGọi Robot\t18\nIII.\tDi chuyển pallet\t23\n3.1 Di chuyển Pallet đến vị trí OUT\t23\n3.2 Đưa Pallet từ vị trí OUT trở về bị trí ban đầu\t26\nIV.\tThiết lập vị trí\t28\nV.\tHoàn hàng\t33\nVI.\tDi chuyển pallet bất kỳ\t37\nVII.\tChỉ định robot bất kỳ\t40\nVIII.\tCác lỗi có thể xảy ra\t41\n8.1\tLỗi vị trí\t41\n8.2\tLỗi nhiệm vụ trùng lặp\t41\n8.3\tBổ sung các lỗi khác khi gặp\t43"
+  },
+  {
+    "id": "69ed0f9e-8b15-5092-b62d-709e2c536bff",
+    "score": 0.5255650008236942,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 9,
+    "headings": [
+      "1 Nhận hàng",
+      "1.3 Gọi Robot",
+      "1.3.4 Gọi robot đến vị trí nhận hàng"
+    ],
+    "page_numbers": [],
+    "text": "Tổng trọng lượng của Pallet là tổng trọng lượng của tất cả cuộn vải trong Pallet. Sau đó ấn OK và ấn Submit một lần nữa.\nHình 22: Nhập thể tích còn lại của Pallet\nLần này sau khi đã đưa các cuộn vải vào Pallet, thể tích còn trống trong Pallet là bao nhiêu thì ta chọn bấy nhiêu và ấn Submit là hoàn tất.\nSau khi ấn Submit cuối cùng, Robot tự động lấy Pallet tại vị trí đó và mang nó quay về đúng vị trí của thùng Pallet là L3-1 (Vị trí gốc ban đầu mà Robot mang nó tới H OUT).",
+    "contextualized_text": "1 Nhận hàng\n1.3 Gọi Robot\n1.3.4 Gọi robot đến vị trí nhận hàng\nTổng trọng lượng của Pallet là tổng trọng lượng của tất cả cuộn vải trong Pallet. Sau đó ấn OK và ấn Submit một lần nữa.\nHình 22: Nhập thể tích còn lại của Pallet\nLần này sau khi đã đưa các cuộn vải vào Pallet, thể tích còn trống trong Pallet là bao nhiêu thì ta chọn bấy nhiêu và ấn Submit là hoàn tất.\nSau khi ấn Submit cuối cùng, Robot tự động lấy Pallet tại vị trí đó và mang nó quay về đúng vị trí của thùng Pallet là L3-1 (Vị trí gốc ban đầu mà Robot mang nó tới H OUT)."
+  },
+  {
+    "id": "08104ac2-7c90-5126-874b-604bb1aa6611",
+    "score": 0.47493895226828625,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 7,
+    "headings": [
+      "1 Nhận hàng",
+      "1.3 Gọi Robot",
+      "1.3.2 Đăng nhập"
+    ],
+    "page_numbers": [],
+    "text": "Quay trở lại giao diện chính ta nhập thông tin tài khoản và vị trí bắt đầu.\nHình 11: Giao diện đang nhập phần mềm\n- Username và Password: là thông tin đăng nhập\n- Location: là vị trí mà robot sẽ di chuyển tới\nHiện tại location sẽ là khu vực được chỉ định sẵn trong kho, các vị trí này được đánh dấu theo từng dãy hàng hóa. Các vị trí cụ thể hiện tại chưa có bản đồ. Việc thay đổi vị trí có thể lựa chọn trong màn hình chính sau khi đăng nhập, không nhất thiết lựa chọn lúc đăng nhập.\nSau khi đăng nhập giao diện màn hình như sau.\nHình 12: Giao diện chính của chương trình\nCó thể nếu lần đầu đăng nhập thì giao diện sẽ trống, ta cần chọn chức năng\n**Update menu**\nđể cập nhật các chức năng của phần mềm.\nHình 13: Chức năng cập nhật menu",
+    "contextualized_text": "1 Nhận hàng\n1.3 Gọi Robot\n1.3.2 Đăng nhập\nQuay trở lại giao diện chính ta nhập thông tin tài khoản và vị trí bắt đầu.\nHình 11: Giao diện đang nhập phần mềm\n- Username và Password: là thông tin đăng nhập\n- Location: là vị trí mà robot sẽ di chuyển tới\nHiện tại location sẽ là khu vực được chỉ định sẵn trong kho, các vị trí này được đánh dấu theo từng dãy hàng hóa. Các vị trí cụ thể hiện tại chưa có bản đồ. Việc thay đổi vị trí có thể lựa chọn trong màn hình chính sau khi đăng nhập, không nhất thiết lựa chọn lúc đăng nhập.\nSau khi đăng nhập giao diện màn hình như sau.\nHình 12: Giao diện chính của chương trình\nCó thể nếu lần đầu đăng nhập thì giao diện sẽ trống, ta cần chọn chức năng\n**Update menu**\nđể cập nhật các chức năng của phần mềm.\nHình 13: Chức năng cập nhật menu"
+  },
+  {
+    "id": "3c128dc7-ed79-585e-bfa7-7cdd94f06455",
+    "score": 0.47230300518905327,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 15,
+    "headings": [
+      "5 Hoàn hàng"
+    ],
+    "page_numbers": [],
+    "text": "Chức năng Return in là chức năng trả lại hàng thừa sau khi đã sử dụng. Có nghĩa là hàng này đã được xuất kho, đưa vào sử dụng. Tuy nhiên không sử dụng hết nên trả lại số lượng thừa về cho kho.\nHình 45: Chức năng Return in\nReturn in có 2 chức năng và dành cho 2 loại vải. Đối với loại vải Muji riêng thì nó sẽ có chức năng riêng, tương tự như các loại vải khác. Loại vải Muji này được nằm ở kho hàng A, B, C, D.\n**Return in**\n: Robot sẽ nhận mã code của cuộn vải trả về, sau đó cố gắng tìm kiếm trong CSDL là trước đây nó nằm trong pallet nào và robot sẽ cố gắng lấy lại pallet đó, nếu pallet đã đầy thì robot tự tìm pallet mới\n**Return in (empty pallet):**\nLà robot tự động lấy một pallet mới, và trống để chứa cuộn vải trả về\nHình 46: Chức năng Return in\nĐối với mỗi cuộn vải trả về sẽ có mã QR, ta nhập mã này vào phần scan barcode phía trên. Sau đó nhấn enter để chương trình hiển thị thông tin cuộn vải trả về.\nHình 47: Nhập số lượng trả về\nKhi đó hệ thống kiểm tra số lượng vải tương ứng QR này lúc xuất kho, hiển thị lên màn hình và cho phép ta nhập số lượng vải trả về. Số lượng vải trả về phải nhỏ hơn số lượng lúc xuất ra.\nHình 48: Số lượng vải trả về nhỏ hơn số lượng ban đầu\nSau khi nhập số lượng vải trả về thì ta nhấn OK để tiếp tục.\nHình 49: Gọi robot tới nhận hàng trả về\nSau đó chọn vị trí gọi robot đến và ấn\n**call the robot**\n(lưu ý đối với vải Muji chỉ hoạt động ở các vị trí A, B, C, D). Robot dẽ tự động kiểm tra xem trước đây Pallet nào chứa cuộn vải này và đi lấy pallet đó, nếu pallet đã đầy thì nó tự đi tìm pallet khác.\nHình 50: Nhập mã Pallet trả về\nKhi robot mang pallet tới, chúng ta nhập mã pallet và ấn enter\nHình 51: Mã pallet khi trả hàng về",
+    "contextualized_text": "5 Hoàn hàng\nChức năng Return in là chức năng trả lại hàng thừa sau khi đã sử dụng. Có nghĩa là hàng này đã được xuất kho, đưa vào sử dụng. Tuy nhiên không sử dụng hết nên trả lại số lượng thừa về cho kho.\nHình 45: Chức năng Return in\nReturn in có 2 chức năng và dành cho 2 loại vải. Đối với loại vải Muji riêng thì nó sẽ có chức năng riêng, tương tự như các loại vải khác. Loại vải Muji này được nằm ở kho hàng A, B, C, D.\n**Return in**\n: Robot sẽ nhận mã code của cuộn vải trả về, sau đó cố gắng tìm kiếm trong CSDL là trước đây nó nằm trong pallet nào và robot sẽ cố gắng lấy lại pallet đó, nếu pallet đã đầy thì robot tự tìm pallet mới\n**Return in (empty pallet):**\nLà robot tự động lấy một pallet mới, và trống để chứa cuộn vải trả về\nHình 46: Chức năng Return in\nĐối với mỗi cuộn vải trả về sẽ có mã QR, ta nhập mã này vào phần scan barcode phía trên. Sau đó nhấn enter để chương trình hiển thị thông tin cuộn vải trả về.\nHình 47: Nhập số lượng trả về\nKhi đó hệ thống kiểm tra số lượng vải tương ứng QR này lúc xuất kho, hiển thị lên màn hình và cho phép ta nhập số lượng vải trả về. Số lượng vải trả về phải nhỏ hơn số lượng lúc xuất ra.\nHình 48: Số lượng vải trả về nhỏ hơn số lượng ban đầu\nSau khi nhập số lượng vải trả về thì ta nhấn OK để tiếp tục.\nHình 49: Gọi robot tới nhận hàng trả về\nSau đó chọn vị trí gọi robot đến và ấn\n**call the robot**\n(lưu ý đối với vải Muji chỉ hoạt động ở các vị trí A, B, C, D). Robot dẽ tự động kiểm tra xem trước đây Pallet nào chứa cuộn vải này và đi lấy pallet đó, nếu pallet đã đầy thì nó tự đi tìm pallet khác.\nHình 50: Nhập mã Pallet trả về\nKhi robot mang pallet tới, chúng ta nhập mã pallet và ấn enter\nHình 51: Mã pallet khi trả hàng về"
+  },
+  {
+    "id": "bc8debbb-d95e-5596-98e2-dc560b794512",
+    "score": 0.4624613836363488,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 16,
+    "headings": [
+      "5 Hoàn hàng"
+    ],
+    "page_numbers": [],
+    "text": "Sau đó nhấn Submit và nhập số thể tích còn lại của pallet. Như vậy robot tự động đưa pallet trở về ban đầu.",
+    "contextualized_text": "5 Hoàn hàng\nSau đó nhấn Submit và nhập số thể tích còn lại của pallet. Như vậy robot tự động đưa pallet trở về ban đầu."
+  },
+  {
+    "id": "5171f912-809d-588c-8753-cc6e314c2bd6",
+    "score": 0.4316189078249093,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 17,
+    "headings": [
+      "6 Di chuyển pallet bất kỳ"
+    ],
+    "page_numbers": [],
+    "text": "Chức năng\n**Pallet return**\nchỉ được phép sử dụng khi mà pallet đó trước đây đã sử dụng chức năng\n**specified out.**\nVì thế nếu 1 pallet được đặt sai vị trí, không sử dụng chức năng\n**specified out**\nthì ta không thể sử dụng AGV để đưa nó về vị trí gốc được, vì vậy ta sử dụng chức năng sau.\nĐầu tiên ta cần đến màn hình đăng nhập của phần mềm\n**FWMSAGV**\nHình 52: Màn hình đăng nhập AGV\nTại vị trí trông trên chương trình (có thể sử dụng vị trí khoanh đỏ), ta nhấn giữ vị trí đó cho đến khi màn hình bên dưới xuất hiện là được.\nHình 53: Điền thông tin thực hiện\nTrong đó:\n- VehicleNo: Là số định danh robot, dùng để chị định 1 robot thực hiện điều này, nếu để trống thì chương trình tự chọn robot bất kỳ. Ta chọn theo số 1, 2, 3, 4, …\n- StartLocation: Là vị trí bắt đầu, nơi chứa pallet cần di chuyển như D OUT, A1-1\n- Destination: Là vị trí kết thúc, robot sẽ đưa pallet từ StartLocation đến Destination\nSau đó bấm “Call AGV” để gọi robot thực hiện.",
+    "contextualized_text": "6 Di chuyển pallet bất kỳ\nChức năng\n**Pallet return**\nchỉ được phép sử dụng khi mà pallet đó trước đây đã sử dụng chức năng\n**specified out.**\nVì thế nếu 1 pallet được đặt sai vị trí, không sử dụng chức năng\n**specified out**\nthì ta không thể sử dụng AGV để đưa nó về vị trí gốc được, vì vậy ta sử dụng chức năng sau.\nĐầu tiên ta cần đến màn hình đăng nhập của phần mềm\n**FWMSAGV**\nHình 52: Màn hình đăng nhập AGV\nTại vị trí trông trên chương trình (có thể sử dụng vị trí khoanh đỏ), ta nhấn giữ vị trí đó cho đến khi màn hình bên dưới xuất hiện là được.\nHình 53: Điền thông tin thực hiện\nTrong đó:\n- VehicleNo: Là số định danh robot, dùng để chị định 1 robot thực hiện điều này, nếu để trống thì chương trình tự chọn robot bất kỳ. Ta chọn theo số 1, 2, 3, 4, …\n- StartLocation: Là vị trí bắt đầu, nơi chứa pallet cần di chuyển như D OUT, A1-1\n- Destination: Là vị trí kết thúc, robot sẽ đưa pallet từ StartLocation đến Destination\nSau đó bấm “Call AGV” để gọi robot thực hiện."
+  },
+  {
+    "id": "0fd2866c-3404-5a36-8ebd-3922a3c4e9ab",
+    "score": 0.4049013978938526,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 3,
+    "headings": [
+      "1 Nhận hàng",
+      "1.1 Nhập thông tin đơn hàng đến"
+    ],
+    "page_numbers": [],
+    "text": "**Khi có đơn hàng mới đến, đầu tiên ta cần tạo đơn hàng vải đến trên trang chủ thông qua chức năng Fabric Arrive.**\nHình 2: Chức năng Fabric Arrive\nTa tạo đơn hàng mới bằng cách nhấn vào nút\n**Add**\n, trong giao diện chức năng Add ta có thể thêm hàng mới bằng cách nhập tay một đơn hàng (Add) hoặc thêm nhiều đơn hàng bằng tệp excel (Import). Vì đơn hàng mới thường có số lượng lớn nên sẽ sử dụng chức năng\n**import.**\nHình 3: Thêm đơn hàng mới\nVí dụ ta có tệp excel mẫu trên, đầu tiên cần điền thông tin nhà cung cấp, loại hàng, đơn vị tiền tệ rồi mới sử dụng chức năng\n**import.**\nHình 4: Giao diện nhập thông tin đơn hàng đến\nĐối với trường\n**Source**\nsẽ là tên nhà cung cấp, chọn\n**Arrive type**\ntương ứng với xuất xứ, currency tương ứng với đơn vị tiền tệ trong tệp excel.\nHình 5: Import số lượng lớn dữ liệu\nTa copy toàn bộ danh sách vật liệu từ tệp excel và dán nó vào danh mục này, sau đó chọn\n**Confirm**\nđể xác nhận thêm đơn hàng.\nHình 6: Thông tin đơn hàng đến trước khi lưu vào CSDL\nSau đó ta có thể kiểm tra lại thông tin đơn hàng trước khi ấn nút\n**Save**\nđể lưu thông tin đơn hàng vào cơ sở dữ liệu.",
+    "contextualized_text": "1 Nhận hàng\n1.1 Nhập thông tin đơn hàng đến\n**Khi có đơn hàng mới đến, đầu tiên ta cần tạo đơn hàng vải đến trên trang chủ thông qua chức năng Fabric Arrive.**\nHình 2: Chức năng Fabric Arrive\nTa tạo đơn hàng mới bằng cách nhấn vào nút\n**Add**\n, trong giao diện chức năng Add ta có thể thêm hàng mới bằng cách nhập tay một đơn hàng (Add) hoặc thêm nhiều đơn hàng bằng tệp excel (Import). Vì đơn hàng mới thường có số lượng lớn nên sẽ sử dụng chức năng\n**import.**\nHình 3: Thêm đơn hàng mới\nVí dụ ta có tệp excel mẫu trên, đầu tiên cần điền thông tin nhà cung cấp, loại hàng, đơn vị tiền tệ rồi mới sử dụng chức năng\n**import.**\nHình 4: Giao diện nhập thông tin đơn hàng đến\nĐối với trường\n**Source**\nsẽ là tên nhà cung cấp, chọn\n**Arrive type**\ntương ứng với xuất xứ, currency tương ứng với đơn vị tiền tệ trong tệp excel.\nHình 5: Import số lượng lớn dữ liệu\nTa copy toàn bộ danh sách vật liệu từ tệp excel và dán nó vào danh mục này, sau đó chọn\n**Confirm**\nđể xác nhận thêm đơn hàng.\nHình 6: Thông tin đơn hàng đến trước khi lưu vào CSDL\nSau đó ta có thể kiểm tra lại thông tin đơn hàng trước khi ấn nút\n**Save**\nđể lưu thông tin đơn hàng vào cơ sở dữ liệu."
+  },
+  {
+    "id": "8ff4d477-2d73-5bc3-ab98-1642ca185076",
+    "score": 0.402509699085725,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 6,
+    "headings": [
+      "1 Nhận hàng",
+      "1.3 Gọi Robot",
+      "1.3.1 Cấu hình máy chủ"
+    ],
+    "page_numbers": [],
+    "text": "Ta vào chương trình phần mềm, tại giao diện của chương trình ta sử dụng chức năng\n**Server Setting**\nở góc trái bên dưới màn hình để cấu hình máy chủ cho robot và cơ sở dữ liệu.\nHình 9: Chức năng thiết lập trên phần mềm điều khiển robot\nTa cấu hình như sau:\nHình 10: Cấu hình thông tin máy chủ robot\nTa nhập địa chỉ IP của Server và Robot tương ứng. Các địa chỉ này cần liên hệ với Mr Huang để biết chính xác.  Sau đó nhấn OK để hoàn tất cấu hình.\nPort Server address: 8023 là thật trong Viva, 9025 là test\nTài khoản test: admin/123456\nTài khoản nhân viên: fwh9/12345678",
+    "contextualized_text": "1 Nhận hàng\n1.3 Gọi Robot\n1.3.1 Cấu hình máy chủ\nTa vào chương trình phần mềm, tại giao diện của chương trình ta sử dụng chức năng\n**Server Setting**\nở góc trái bên dưới màn hình để cấu hình máy chủ cho robot và cơ sở dữ liệu.\nHình 9: Chức năng thiết lập trên phần mềm điều khiển robot\nTa cấu hình như sau:\nHình 10: Cấu hình thông tin máy chủ robot\nTa nhập địa chỉ IP của Server và Robot tương ứng. Các địa chỉ này cần liên hệ với Mr Huang để biết chính xác.  Sau đó nhấn OK để hoàn tất cấu hình.\nPort Server address: 8023 là thật trong Viva, 9025 là test\nTài khoản test: admin/123456\nTài khoản nhân viên: fwh9/12345678"
+  },
+  {
+    "id": "0c7cb4ac-0b46-549b-9f0d-203ab4f02dcc",
+    "score": 0.3934846097910805,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 18,
+    "headings": [
+      "7 Chỉ định robot bất kỳ"
+    ],
+    "page_numbers": [],
+    "text": "Để chỉ định robot bất kỳ, ta sử dụng giao diện như bên dưới\nHình 54: Chỉ didhj 1 robot bất kỳ\nKhi ta chỉ định Vehicle No, ta thoát ra thì sau đó các chức năng trong PDA sẽ tự động chỉ định robot số 4.\nĐể tuân thủ các nguyên tắc từng robot được chỉ định từng khu vực thì ta phải xóa nó đi sau khi sử dụng robot được chỉ định. Xóa dòng VehicleNo và ấn back ra là được.",
+    "contextualized_text": "7 Chỉ định robot bất kỳ\nĐể chỉ định robot bất kỳ, ta sử dụng giao diện như bên dưới\nHình 54: Chỉ didhj 1 robot bất kỳ\nKhi ta chỉ định Vehicle No, ta thoát ra thì sau đó các chức năng trong PDA sẽ tự động chỉ định robot số 4.\nĐể tuân thủ các nguyên tắc từng robot được chỉ định từng khu vực thì ta phải xóa nó đi sau khi sử dụng robot được chỉ định. Xóa dòng VehicleNo và ấn back ra là được."
+  },
+  {
+    "id": "b6e5d0ff-8fb7-5118-8719-6bb5bc2d2bb7",
+    "score": 0.3705626903667169,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 13,
+    "headings": [
+      "3 Di chuyển pallet",
+      "3.2 Đưa Pallet từ vị trí OUT trở về bị trí ban đầu"
+    ],
+    "page_numbers": [],
+    "text": "Để đưa Pallet về vị trí gốc của nó, ta sử dụng chức năng\n**Pallet Return**\n.\n***Lưu ý nó chỉ hoạt động khi trước đó đã sử dụng chức năng Specified pallet out.***\nHình 37: Chức năng Pallet Return\nTại giao diện của\n**Pallet Return**\nta cần nhập các thông tin sau:\n- Vị trí mà Pallet hiện tại đang được đặt\n- Mã Pallet thông qua nhập tay hoặc quét mã QR\nHình 38: Lựa chọn Pallet cần về vị trí cũ\nSau đó ta ấn\n**Submit**\nđể Robot tự động tới lấy Pallet và đưa về đúng vị trí ban đầu.",
+    "contextualized_text": "3 Di chuyển pallet\n3.2 Đưa Pallet từ vị trí OUT trở về bị trí ban đầu\nĐể đưa Pallet về vị trí gốc của nó, ta sử dụng chức năng\n**Pallet Return**\n.\n***Lưu ý nó chỉ hoạt động khi trước đó đã sử dụng chức năng Specified pallet out.***\nHình 37: Chức năng Pallet Return\nTại giao diện của\n**Pallet Return**\nta cần nhập các thông tin sau:\n- Vị trí mà Pallet hiện tại đang được đặt\n- Mã Pallet thông qua nhập tay hoặc quét mã QR\nHình 38: Lựa chọn Pallet cần về vị trí cũ\nSau đó ta ấn\n**Submit**\nđể Robot tự động tới lấy Pallet và đưa về đúng vị trí ban đầu."
+  },
+  {
+    "id": "89b25385-237e-5803-881d-b6426181a9ea",
+    "score": 0.35875938745391645,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 2,
+    "headings": [
+      "1 Nhận hàng"
+    ],
+    "page_numbers": [],
+    "text": "Khi một đơn hàng đến, nhân viên sẽ có 1 tệp excel chứa thông tin các nguyên liệu vải.\nHình 1: Thông tin đơn hàng đến\nSau đó nhân viên tiến hành nhập thông tin nguyên liệu lên hệ thống.",
+    "contextualized_text": "1 Nhận hàng\nKhi một đơn hàng đến, nhân viên sẽ có 1 tệp excel chứa thông tin các nguyên liệu vải.\nHình 1: Thông tin đơn hàng đến\nSau đó nhân viên tiến hành nhập thông tin nguyên liệu lên hệ thống."
+  },
+  {
+    "id": "d7ff00ee-3797-5a90-b9f4-a1a94868e1b5",
+    "score": 0.35700818290672115,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 14,
+    "headings": [
+      "4 Thiết lập vị trí"
+    ],
+    "page_numbers": [],
+    "text": "**Ta cần thiết lập các vị trí pallet lên CSDL để robot có thể di chuyển một cách an toàn. Ta sử dụng chức năng Location Binding.**\nHình 39: Chức năng Location Binding\nKhi vào giao diện ta thấy từng vị trí một, từ A, B, C, D, …. Khi ta chọn dãy kho A1 thì nó mở ra  A1-1, A1-2, … Khi ta chọn A2 thì nó mở ra danh sách A2-1, A2-2, …\nCả hai chức năng\n**Location binding**\nđều sử dụng như nhau, chỉ có khác là 1 cái hiển thị dạng danh sách, một cái ta phải tìm kiếm từng vị trí.\nHình 40: Tìm kiếm vị trí A1-1\nTa chọn vị trí ta cần chỉnh sửa, lần lượt từng vị trí, bắt đầu từ A1-1 cho đến hết các vị trí còn lại. Hoặc chỉ có nhu cầu sửa dữ liệu cho 1 vị trí cụ thể thì ta chọn vị tri đó như A1-5.\nHình 41: Scan vị trí A1-1\nKhi giao diện từng vị trí mở ra, bên dưới sẽ có dãy số 4 chữ số. Nếu nó tồn tại thì có nghĩa vị trí đó đang có pallet có mã như vậy. Còn nếu trống thì có nghĩa là vị trí đó đang trống, chưa có pallet nào tồn tại.\nNếu ta cần chỉnh sửa vị trí A1-1 thì ta chọn vị trí A1-1, ta sử dụng chức năng Scan ở phía dưới cùng góc trái màn hình để quét mã được dán mã A1-1 trên Pallet, hoặc nhập mã của pallet vào ô nhập.\nHình 42: Quét mã của pallet vào location binding\nHình 43: Mã dán trên Pallet tương ứng với thông tin\nThực hiện tiếp tục cho đến khi kết thúc toàn bộ vị trí.  Lưu ý Pallet được đánh dấu vị trí nào thì nó phải nằm đúng vị trí đó, ko được chọn mã A1-1 mà đi quét Pallet A1-2.\nHình 44: Pallet lỗi chưa khớp vị trí\nVí dụ lỗi pallet có mã 0654 đang không biết ở đâu. Ta tìm kiếm thực tế pallet mã 0654 đang được dán mã vị trí nào và ta vào vị trí đó gắn lại code của Pallet trong Location Binding.",
+    "contextualized_text": "4 Thiết lập vị trí\n**Ta cần thiết lập các vị trí pallet lên CSDL để robot có thể di chuyển một cách an toàn. Ta sử dụng chức năng Location Binding.**\nHình 39: Chức năng Location Binding\nKhi vào giao diện ta thấy từng vị trí một, từ A, B, C, D, …. Khi ta chọn dãy kho A1 thì nó mở ra  A1-1, A1-2, … Khi ta chọn A2 thì nó mở ra danh sách A2-1, A2-2, …\nCả hai chức năng\n**Location binding**\nđều sử dụng như nhau, chỉ có khác là 1 cái hiển thị dạng danh sách, một cái ta phải tìm kiếm từng vị trí.\nHình 40: Tìm kiếm vị trí A1-1\nTa chọn vị trí ta cần chỉnh sửa, lần lượt từng vị trí, bắt đầu từ A1-1 cho đến hết các vị trí còn lại. Hoặc chỉ có nhu cầu sửa dữ liệu cho 1 vị trí cụ thể thì ta chọn vị tri đó như A1-5.\nHình 41: Scan vị trí A1-1\nKhi giao diện từng vị trí mở ra, bên dưới sẽ có dãy số 4 chữ số. Nếu nó tồn tại thì có nghĩa vị trí đó đang có pallet có mã như vậy. Còn nếu trống thì có nghĩa là vị trí đó đang trống, chưa có pallet nào tồn tại.\nNếu ta cần chỉnh sửa vị trí A1-1 thì ta chọn vị trí A1-1, ta sử dụng chức năng Scan ở phía dưới cùng góc trái màn hình để quét mã được dán mã A1-1 trên Pallet, hoặc nhập mã của pallet vào ô nhập.\nHình 42: Quét mã của pallet vào location binding\nHình 43: Mã dán trên Pallet tương ứng với thông tin\nThực hiện tiếp tục cho đến khi kết thúc toàn bộ vị trí.  Lưu ý Pallet được đánh dấu vị trí nào thì nó phải nằm đúng vị trí đó, ko được chọn mã A1-1 mà đi quét Pallet A1-2.\nHình 44: Pallet lỗi chưa khớp vị trí\nVí dụ lỗi pallet có mã 0654 đang không biết ở đâu. Ta tìm kiếm thực tế pallet mã 0654 đang được dán mã vị trí nào và ta vào vị trí đó gắn lại code của Pallet trong Location Binding."
+  },
+  {
+    "id": "c12eb119-0f2f-59fa-a626-4cca5745f130",
+    "score": 0.35557151666965586,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 0,
+    "headings": [],
+    "page_numbers": [],
+    "text": "QUY TRÌNH NHẬP VÀ XUẤT HÀNG SỬ DỤNG AGV",
+    "contextualized_text": "QUY TRÌNH NHẬP VÀ XUẤT HÀNG SỬ DỤNG AGV"
+  },
+  {
+    "id": "7c6b3226-dace-50fc-9eba-f97a475dcf94",
+    "score": 0.3518786793795462,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 4,
+    "headings": [
+      "1 Nhận hàng",
+      "1.2 Dán mã"
+    ],
+    "page_numbers": [],
+    "text": "Sau khi tạo đơn hàng, ta quay lại giao diện màn hình\n**Fabric Arrive**\nsẽ thấy thông tin đơn hàng của chúng ta vừa tạo.\nHình 7: Thông tin đơn hàng đến vừa tạo\nSau đó ta sử dụng chức năng in, có biểu tượng máy in ở phía ngoài cùng bên phải để in ra\n**barcode**\ncủa cuộn vải đó và dán thông tin này lên từng cuộn vải tương ứng.",
+    "contextualized_text": "1 Nhận hàng\n1.2 Dán mã\nSau khi tạo đơn hàng, ta quay lại giao diện màn hình\n**Fabric Arrive**\nsẽ thấy thông tin đơn hàng của chúng ta vừa tạo.\nHình 7: Thông tin đơn hàng đến vừa tạo\nSau đó ta sử dụng chức năng in, có biểu tượng máy in ở phía ngoài cùng bên phải để in ra\n**barcode**\ncủa cuộn vải đó và dán thông tin này lên từng cuộn vải tương ứng."
+  },
+  {
+    "id": "d8eb0839-0153-5dcf-831d-ff096f18e3c2",
+    "score": 0.3490106076609011,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 10,
+    "headings": [
+      "2 Xuất hàng",
+      "2.1 Xuất hàng trên giao diện web"
+    ],
+    "page_numbers": [],
+    "text": "**Ta vào trong chủ website và vào màn hình Fabric Picking**\nHình 23: Giao diện màn hình Fabric Picking\nĐể xuất đơn hàng ra ta sử dụng chức năng\n**Add**\n.\nHình 24: Chức năng Add\n**Sau đó ta điền thông tin đơn hàng đã có trong kho bằng cách sử dụng chức năng Select Stock.**\nHình 25: Chức năng Select Stock\n**Ta tìm kiếm và chọn sản phẩm tương ứng được hiển thị trong màn hình Select Stock.**\nHình 26: Lựa chọn đơn hàng muốn xuất ra kho\nRồi ấn Confirm để xác nhận đơn hàng, màn hình sẽ quay lại giao diện chính một lần nữa để ta điền thông tin.\nHình 27: Xác nhận thông tin đơn hàng muốn xuất kho\nTa cần xác nhận\n**Source Type, Source**\nvà thông tin đơn hàng sẽ hiển thị ở dạng danh sách bên dưới. Sau khi xác nhận thông tin ta ấn\n**Save**\n.",
+    "contextualized_text": "2 Xuất hàng\n2.1 Xuất hàng trên giao diện web\n**Ta vào trong chủ website và vào màn hình Fabric Picking**\nHình 23: Giao diện màn hình Fabric Picking\nĐể xuất đơn hàng ra ta sử dụng chức năng\n**Add**\n.\nHình 24: Chức năng Add\n**Sau đó ta điền thông tin đơn hàng đã có trong kho bằng cách sử dụng chức năng Select Stock.**\nHình 25: Chức năng Select Stock\n**Ta tìm kiếm và chọn sản phẩm tương ứng được hiển thị trong màn hình Select Stock.**\nHình 26: Lựa chọn đơn hàng muốn xuất ra kho\nRồi ấn Confirm để xác nhận đơn hàng, màn hình sẽ quay lại giao diện chính một lần nữa để ta điền thông tin.\nHình 27: Xác nhận thông tin đơn hàng muốn xuất kho\nTa cần xác nhận\n**Source Type, Source**\nvà thông tin đơn hàng sẽ hiển thị ở dạng danh sách bên dưới. Sau khi xác nhận thông tin ta ấn\n**Save**\n."
+  },
+  {
+    "id": "6f419a06-0063-595a-b7d5-5590ffd9a7f1",
+    "score": 0.34630485659814647,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 19,
+    "headings": [
+      "8 Các lỗi có thể xảy ra",
+      "8.1 Lỗi vị trí"
+    ],
+    "page_numbers": [],
+    "text": "Khi ta sử dụng chức năng xuất kho, chọn một mã đơn để xuất kho và ta nhìn thấy\n**TEMP(0654).**\nHoặc trong trường hợp pallet bị sai vị trí, nhầm lẫn vị trí trong cơ sở dữ liệu, gọi robot tới di chuyển pallet, dữ liệu đã được cập nhật trong cơ sở dữ liệu nhưng robot lại không đến lấy (lỗi nằm ở robot).\nTất cả các trường hợp đều hướng tới việc vị trí thực tế của pallet đang khác so với dữ liệu trong CSDL thì ta cần sửa lại cho đúng.\nHình 55: Lỗi sai vị trí\n**Với ví dụ trên, điều này có nghĩa là đang bất đồng bộ về vị trí pallet. Ta có cấu trúc sau: Location- pallet_code**\nNếu một trong hai hiển thị\n**TEMP**\nthì có nghĩa chưa đúng, ta cần vào chức năng\n**Location Binding**\nđể sửa lại cho khớp vị trí thực tế hiện tại của pallet đó đang nằm ở đâu.",
+    "contextualized_text": "8 Các lỗi có thể xảy ra\n8.1 Lỗi vị trí\nKhi ta sử dụng chức năng xuất kho, chọn một mã đơn để xuất kho và ta nhìn thấy\n**TEMP(0654).**\nHoặc trong trường hợp pallet bị sai vị trí, nhầm lẫn vị trí trong cơ sở dữ liệu, gọi robot tới di chuyển pallet, dữ liệu đã được cập nhật trong cơ sở dữ liệu nhưng robot lại không đến lấy (lỗi nằm ở robot).\nTất cả các trường hợp đều hướng tới việc vị trí thực tế của pallet đang khác so với dữ liệu trong CSDL thì ta cần sửa lại cho đúng.\nHình 55: Lỗi sai vị trí\n**Với ví dụ trên, điều này có nghĩa là đang bất đồng bộ về vị trí pallet. Ta có cấu trúc sau: Location- pallet_code**\nNếu một trong hai hiển thị\n**TEMP**\nthì có nghĩa chưa đúng, ta cần vào chức năng\n**Location Binding**\nđể sửa lại cho khớp vị trí thực tế hiện tại của pallet đó đang nằm ở đâu."
+  },
+  {
+    "id": "e92ac0ed-6649-5445-a9df-bf606135c537",
+    "score": 0.3294285123389626,
+    "source_file": "farbic_warehouse_document.docx",
+    "chunk_index": 12,
+    "headings": [
+      "3 Di chuyển pallet",
+      "3.1 Di chuyển Pallet đến vị trí OUT"
+    ],
+    "page_numbers": [],
+    "text": "**Để di chuyển một pallet bất kỳ từ vị trí bất kỳ đến một ví trí out được chỉ định (D OUT, E OUT, …) ta sử dụng chức năng Specified Pallet out.**\nHình 34: Chức năng Specified Pallet Out\nTại đây ta chọn pallet tương ứng hiển thị trên màn hình, hoặc tìm kiếm theo vị trí của Pallet và lựa chọn.\nHình 35: Tìm kiếm Pallet cần d i chuyển\nSau khi tìm thấy Pallet cần di chuyển, ta cần chỉ định vị trí mà Pallet đưa đến ở phía trên góc phải màn hình.\nHình 36: Chọn vị trí mà pallet cần đưa đến\nVí dụ ta chỉ định Pallet L3-1 sẽ được đưa đến vị trí H OUT. Ta chọn Pallet L3-1 (khi đó nó sẽ được đánh dấu tick bên cạnh) và chọn vị trí H OUT và cuối cùng ấn Submit. Robot sẽ tự động đến và đưa Pallet L3-1 đi đến vị trí H out.",
+    "contextualized_text": "3 Di chuyển pallet\n3.1 Di chuyển Pallet đến vị trí OUT\n**Để di chuyển một pallet bất kỳ từ vị trí bất kỳ đến một ví trí out được chỉ định (D OUT, E OUT, …) ta sử dụng chức năng Specified Pallet out.**\nHình 34: Chức năng Specified Pallet Out\nTại đây ta chọn pallet tương ứng hiển thị trên màn hình, hoặc tìm kiếm theo vị trí của Pallet và lựa chọn.\nHình 35: Tìm kiếm Pallet cần d i chuyển\nSau khi tìm thấy Pallet cần di chuyển, ta cần chỉ định vị trí mà Pallet đưa đến ở phía trên góc phải màn hình.\nHình 36: Chọn vị trí mà pallet cần đưa đến\nVí dụ ta chỉ định Pallet L3-1 sẽ được đưa đến vị trí H OUT. Ta chọn Pallet L3-1 (khi đó nó sẽ được đánh dấu tick bên cạnh) và chọn vị trí H OUT và cuối cùng ấn Submit. Robot sẽ tự động đến và đưa Pallet L3-1 đi đến vị trí H out."
+  }
+]
