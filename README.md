@@ -92,3 +92,11 @@ Cài đa
 ```python
 python3 chunk/embedding_chunk.py ingest --chunks "./outputs/farbic_warehouse_document.chunks.jsonl" --tenant-id "wms" --remove-old-versions
 ```
+thiết lập tên người dùng Git toàn cục.
+git config --global user.name "{Tên_Của_Bạn}"
+thiết lập email người dùng Git toàn cục.
+git config --global user.email "{email_của_bạn@example.com}"
+sửa lại commit gần nhất,
+đặt lại tác giả của commit theo cấu hình vừa thiết lập,
+giữ nguyên nội dung thông điệp commit.
+git commit --amend --reset-author --no-edit
