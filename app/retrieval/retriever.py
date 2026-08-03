@@ -11,17 +11,6 @@ Tầng retrieval nhanh bằng dense vector:
         -> Qdrant tìm nearest points
         -> chuyển ScoredPoint thành RetrievedChunk
         -> trả cho CrossEncoder reranker
-
-File này không đọc trực tiếp PDF/DOCX. Để test với tài liệu thật,
-tài liệu phải được ingest vào Qdrant trước.
-
-Chạy từ thư mục gốc project:
-
-    python3 -m app.retrieval.dense_document_retriever \
-        --question "Làm thế nào để gọi robot nhận hàng?" \
-        --tenant-id "wms" \
-        --document-id "fabric-warehouse-guide" \
-        --top-k 10
 """
 import argparse
 import asyncio
@@ -91,10 +80,10 @@ class DenseDocumentRetriever:
         # Dùng top_k truyền vào hoặc giá trị mặc định trong Settings.
         selected_top_k = self._resolve_top_k(top_k)
 
-        # Prefix query phải khớp với cách model embedding được thiết kế. Thêm "search_query"
+        # Prefix query phải khớp với cách model embedding được thiết kế. Đối với nomic embedding thì phải thêm "search_query"
         query_embedding_text = (self.settings.embedding_query_prefix + normalized_question).strip()
 
-        # embed_texts câu hỏi của người dùng và trả list vector.
+        # embed_texts câu hỏi của người dùng và trả về list vector.
         embedding_response = await self.ollama_client.embed_texts([query_embedding_text])
 
         # Vì chỉ gửi một câu hỏi, phải nhận đúng một vector.
@@ -111,9 +100,7 @@ class DenseDocumentRetriever:
 
         # Bảo vệ ranh giới giữa repository và retriever.
         if not isinstance(scored_points, Sequence):
-            raise TypeError(
-                "search_chunks() phải trả Sequence[ScoredPoint]."
-            )
+            raise TypeError("search_chunks() phải trả Sequence[ScoredPoint].")
 
         # Danh sách output cuối cùng.
         retrieved_chunks: list[RetrievedChunk] = []
@@ -139,10 +126,7 @@ class DenseDocumentRetriever:
 
             # Point không có text không thể dùng cho RAG.
             if retrieved_chunk is None:
-                logger.warning(
-                    "Bỏ Qdrant point tại vị trí %s vì thiếu text.",
-                    result_index,
-                )
+                logger.warning("Bỏ Qdrant point tại vị trí %s vì thiếu text.", result_index)
                 continue
 
             # Chuẩn hóa ID để dùng trong set.
@@ -153,11 +137,8 @@ class DenseDocumentRetriever:
                 logger.warning("Bỏ point ID trùng: %s", point_id)
                 continue
 
-            # Bỏ điểm dưới threshold nếu đã cấu hình.
-            if (
-                minimum_dense_score is not None
-                and retrieved_chunk.dense_score < minimum_dense_score
-            ):
+            # Bỏ các point có điểm số dưới ngưỡng
+            if (minimum_dense_score is not None and retrieved_chunk.dense_score < minimum_dense_score):
                 continue
 
             # Ghi nhận ID và thêm chunk.
@@ -166,8 +147,8 @@ class DenseDocumentRetriever:
 
         # Qdrant thường đã sort giảm dần, nhưng sort lại để bảo đảm.
         retrieved_chunks.sort(
-            key=lambda item: item.dense_score,
-            reverse=True,
+            key=lambda item: item.dense_score,    # Sắp xếp theo trường dense_score
+            reverse=True,                         # Tham số giảm dần
         )
 
         # Trả kết quả cho reranker.
@@ -654,12 +635,12 @@ class DenseDocumentRetriever:
 # -----------------------------------------------------------------------------
 # Các helper dưới đây chỉ phục vụ CLI test với dữ liệu thật.
 # -----------------------------------------------------------------------------
+"""
+Muốn chạy được thật thì trước tiên phải ingestion tài liệu trước ở code: app/ingestion/ingestion_service.py
+Khi đó ta mới có dữ liệu để tìm kiếm
+"""
 
-
-def _chunk_to_display_dict(
-    chunk: RetrievedChunk,
-    preview_characters: int,
-) -> dict[str, Any]:
+def _chunk_to_display_dict(chunk: RetrievedChunk, preview_characters: int) -> dict[str, Any]:
     """Rút gọn RetrievedChunk để in terminal."""
 
     # Lấy text có context.
@@ -705,13 +686,7 @@ async def _close_if_supported(resource: Any) -> None:
         await result
 
 
-async def test_real_retrieval(
-    question: str,
-    tenant_id: str,
-    document_id: str | None,
-    top_k: int | None,
-    preview_characters: int,
-) -> None:
+async def test_real_retrieval(question: str, tenant_id: str, document_id: str | None, top_k: int | None, preview_characters: int) -> None:
     """
     Test trực tiếp với Ollama, Qdrant và tài liệu đã ingest thật.
     """
