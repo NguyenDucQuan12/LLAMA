@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-Chức năng chính
+Dịch vụ chunking tài liệu
 ---------------
 1. Chuyển PDF/DOCX/... thành DoclingDocument.
 2. Xuất Markdown để con người kiểm tra kết quả chuyển đổi.
@@ -11,24 +11,6 @@ Chức năng chính
 6. Kiểm tra lại embedding_text trước khi cho phép ingest.
 7. Ghi chunks thành JSONL.
 8. Đọc lại JSONL và xác minh tính toàn vẹn
-
-Ví dụ chạy từ thư mục gốc project
----------------------------------
-Giả sử file này được đặt tại:
-
-    app/services/chunking_service.py
-
-Chạy:
-
-    python3 -m app.services.chunking_service \
-        --source "./document/farbic_warehouse_document.docx" \
-        --output "./outputs/chunk_test" \
-        --document-id "fabric-warehouse-guide" \
-        --preview 5
-
-Lưu ý:
-- Nên chạy bằng `python3 -m ...` từ thư mục gốc project.
-- Cách này giúp import `app.config` hoạt động ổn định.
 """
 
 import argparse
@@ -63,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================
-# 1. CÁC DATA CLASS
+# DATA CLASS
 # ============================================================
 
 @dataclass(frozen=True)
@@ -206,17 +188,12 @@ class DocumentChunkingService:
 
         # Tạo converter một lần thay vì tạo lại trong mỗi process_document().
         self.converter = converter or DocumentConverter()
-
         # Tokenizer và HybridChunker cũng được tạo một lần.
         self.runtime = self._create_chunking_runtime()
 
-    # --------------------------------------------------------
-    # PUBLIC METHOD CHÍNH
-    # --------------------------------------------------------
-
     def process_document(self, source_file: Path, output_directory: Path, document_id: str | None = None,) -> ChunkingResult:
         """
-        Chuyển đổi và chunk một tệp.
+        Chuyển đổi và tạo ch từunk một tệp tin.
         ---------
         1. Chuẩn hóa/kiểm tra đường dẫn.
         2. Tính SHA-256 file nguồn.
@@ -229,9 +206,7 @@ class DocumentChunkingService:
         """
         # xử lý đường dẫn file, và thư mục output 
         resolved_source_file = source_file.expanduser().resolve()
-        resolved_output_directory = (
-            output_directory.expanduser().resolve()
-        )
+        resolved_output_directory = output_directory.expanduser().resolve()
 
         # Xác thực tệp tin trước khi xử lý
         self._validate_source_file(resolved_source_file)
@@ -257,7 +232,7 @@ class DocumentChunkingService:
             ) from exception
 
         # Tạo các thư mục chứa tệp đầu ra
-        document_json_path, markdown_path, chunks_jsonl_path, artifacts_directory = self._build_output_paths( source_file=resolved_source_file, output_directory=resolved_output_directory, )
+        document_json_path, markdown_path, chunks_jsonl_path, artifacts_directory = self._build_output_paths( source_file=resolved_source_file, output_directory=resolved_output_directory)
 
         # Markdown giúp kiểm tra trực quan Docling đã đọc đúng nội dung chưa.
         # Trước khi kiểm tra từng chunk thì xem docling có phân tích tốt nội dung document bằng tệp markdown này không
@@ -397,14 +372,12 @@ class DocumentChunkingService:
         """
         Duyệt chunk Docling và chuyển thành ChunkRecord.
         """
-        # Khai báo danh sách chứa chunk record
+        # Khai báo danh sách chứa chunk record sau cùng
         final_records: list[ChunkRecord] = []
         output_chunk_index = 0
 
         try:
-            chunk_iterator = self.runtime.chunker.chunk(
-                dl_doc=document
-            )
+            chunk_iterator = self.runtime.chunker.chunk(dl_doc=document)
 
             for docling_chunk_index, chunk in enumerate(chunk_iterator):
                 raw_text = str(chunk.text).strip()
@@ -942,32 +915,22 @@ class DocumentChunkingService:
         """
 
         if not source_file.exists():
-            raise FileNotFoundError(
-                f"Không tìm thấy tài liệu: {source_file}"
-            )
+            raise FileNotFoundError(f"Không tìm thấy tài liệu: {source_file}")
 
         if not source_file.is_file():
-            raise ValueError(
-                f"Đường dẫn không phải file: {source_file}"
-            )
+            raise ValueError(f"Đường dẫn không phải file: {source_file}")
 
         try:
             file_size = source_file.stat().st_size
         except OSError as exception:
-            raise RuntimeError(
-                f"Không thể đọc metadata file: {source_file}"
-            ) from exception
+            raise RuntimeError(f"Không thể đọc metadata file: {source_file}") from exception
 
         if file_size <= 0:
-            raise ValueError(
-                f"Tài liệu đang rỗng: {source_file}"
-            )
+            raise ValueError(f"Tài liệu đang rỗng: {source_file}")
 
         # Chỉ kiểm tra quyền đọc ở mức hệ điều hành.
         if not os.access(source_file, os.R_OK):
-            raise PermissionError(
-                f"Không có quyền đọc file: {source_file}"
-            )
+            raise PermissionError(f"Không có quyền đọc file: {source_file}")
 
     def _select_document_id(self, document_id: str | None, source_file: Path,) -> str:
         """
@@ -983,14 +946,12 @@ class DocumentChunkingService:
             if document_id is not None
             else ""
         )
-
+        # Lấy tên file
         if not selected:
             selected = source_file.stem
 
         if len(selected) > 200:
-            raise ValueError(
-                "document_id quá dài; tối đa 200 ký tự."
-            )
+            raise ValueError("document_id quá dài; tối đa 200 ký tự.")
 
         return selected
 
@@ -1046,10 +1007,7 @@ class DocumentChunkingService:
             )
         )
 
-    def _rewrite_json_with_readable_unicode(
-        self,
-        json_path: Path,
-    ) -> None:
+    def _rewrite_json_with_readable_unicode(self, json_path: Path) -> None:
         """
         Ghi lại JSON với ensure_ascii=False.
 
@@ -1058,14 +1016,10 @@ class DocumentChunkingService:
             "\\u1eadn" -> "ậ"
         không thay đổi ý nghĩa dữ liệu.
         """
-
-        document_data = json.loads(
-            json_path.read_text(encoding="utf-8")
-        )
-
-        temporary_path = json_path.with_suffix(
-            json_path.suffix + ".tmp"
-        )
+        # Đọc dữ liệu từ tệp json gốc
+        document_data = json.loads(json_path.read_text(encoding="utf-8"))
+        # Tạo đường dẫn tệp tạm
+        temporary_path = json_path.with_suffix(json_path.suffix + ".tmp")
 
         try:
             temporary_path.write_text(
@@ -1101,12 +1055,7 @@ class DocumentChunkingService:
 
         return sha256_hash.hexdigest()
 
-    def _count_tokens(
-        self,
-        tokenizer: PreTrainedTokenizerBase,
-        text: str,
-        add_special_tokens: bool,
-    ) -> int:
+    def _count_tokens(self, tokenizer: PreTrainedTokenizerBase, text: str, add_special_tokens: bool) -> int:
         """
         Đếm token bằng tokenizer embedding model.
         """
@@ -1124,47 +1073,37 @@ class DocumentChunkingService:
         input_ids = encoded.get("input_ids")
 
         if not isinstance(input_ids, list):
-            raise RuntimeError(
-                "Tokenizer không trả input_ids dạng list."
-            )
+            raise RuntimeError("Tokenizer không trả input_ids dạng list.")
 
         return len(input_ids)
 
-    def _find_page_numbers(
-        self,
-        value: Any,
-    ) -> set[int]:
+    def _find_page_numbers(self, value: Any) -> set[int]:
         """
-        Duyệt đệ quy metadata để tìm page_no.
+        Duyệt đệ quy metadata để tìm page_no.  
+        Hiện tại chỉ có thể lấy số trang đối với tài liệu pdf, có thể chuyển đổi word sang pđf và thực hiện lại
         """
 
         page_numbers: set[int] = set()
 
         if isinstance(value, dict):
+            # doc_items = value["doc_items"]
+            # first_doc_item = doc_items[0]
+            # prov_value = first_doc_item["prov"]
+            # page_number = prov_value[0].page_no
+            # print(page_number)
             for key, child_value in value.items():
-                if (
-                    key == "page_no"
-                    and isinstance(child_value, int)
-                    and child_value > 0
-                ):
+                if (key == "page_no" and isinstance(child_value, int) and child_value > 0):
                     page_numbers.add(child_value)
 
-                page_numbers.update(
-                    self._find_page_numbers(child_value)
-                )
+                page_numbers.update(self._find_page_numbers(child_value))
 
         elif isinstance(value, list):
             for item in value:
-                page_numbers.update(
-                    self._find_page_numbers(item)
-                )
+                page_numbers.update(self._find_page_numbers(item))
 
         return page_numbers
 
-    def _extract_doc_item_refs(
-        self,
-        metadata: dict[str, Any],
-    ) -> list[str]:
+    def _extract_doc_item_refs(self, metadata: dict[str, Any]) -> list[str]:
         """
         Lấy self_ref và loại trùng nhưng giữ nguyên thứ tự.
         """
@@ -1193,10 +1132,7 @@ class DocumentChunkingService:
 
         return references
 
-    def _normalize_string_list(
-        self,
-        value: Any,
-    ) -> list[str]:
+    def _normalize_string_list(self, value: Any) -> list[str]:
         """
         Chuẩn hóa heading/caption thành list[str],
         bỏ phần tử rỗng và loại trùng.
@@ -1232,12 +1168,7 @@ class DocumentChunkingService:
 # 3. HÀM TEST MỘT TỆP
 # ============================================================
 
-def print_chunking_summary(
-    result: ChunkingResult,
-    service: DocumentChunkingService,
-    preview_count: int,
-    show_full_text: bool,
-) -> None:
+def print_chunking_summary(result: ChunkingResult, service: DocumentChunkingService, preview_count: int, show_full_text: bool) -> None:
     """
     In báo cáo dễ đọc sau khi test.
     """
@@ -1260,23 +1191,14 @@ def print_chunking_summary(
         f"{report.average_tokens:.2f}/"
         f"{report.maximum_tokens}"
     )
-    print(
-        f"Chunk có trang    : {report.chunks_with_pages}"
-    )
-    print(
-        f"Chunk không trang : {report.chunks_without_pages}"
-    )
-    print(
-        f"Fallback subchunk : {report.fallback_subchunks}"
-    )
+    print(f"Chunk có trang    : {report.chunks_with_pages}")
+    print(f"Chunk không trang : {report.chunks_without_pages}")
+    print(f"Fallback subchunk : {report.fallback_subchunks}")
     print(f"Markdown          : {result.markdown_path}")
     print(f"Document JSON     : {result.document_json_path}")
     print(f"Chunks JSONL      : {result.chunks_jsonl_path}")
 
-    preview_count = max(
-        0,
-        min(preview_count, len(result.chunks)),
-    )
+    preview_count = max(0, min(preview_count, len(result.chunks)))
 
     if preview_count == 0:
         return
@@ -1313,65 +1235,6 @@ def print_chunking_summary(
         print("contextualized_text:")
         print(preview_text)
 
-
-def build_argument_parser() -> argparse.ArgumentParser:
-    """
-    CLI test một tệp.
-    """
-
-    parser = argparse.ArgumentParser(
-        description=(
-            "Chuyển một tài liệu thành DoclingDocument "
-            "và chunks JSONL an toàn theo token."
-        )
-    )
-
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("./outputs/chunk_test"),
-        help=(
-            "Thư mục đầu ra. "
-            "Mặc định: ./outputs/chunk_test"
-        ),
-    )
-
-    parser.add_argument(
-        "--document-id",
-        default=None,
-        help=(
-            "ID nghiệp vụ ổn định. "
-            "Nếu bỏ trống sẽ dùng tên tệp."
-        ),
-    )
-
-    parser.add_argument(
-        "--preview",
-        type=int,
-        default=5,
-        help="Số chunk xem trước. Mặc định: 5.",
-    )
-
-    parser.add_argument(
-        "--show-full-text",
-        action="store_true",
-        help="In toàn bộ text của chunk xem trước.",
-    )
-
-    parser.add_argument(
-        "--log-level",
-        choices=[
-            "DEBUG",
-            "INFO",
-            "WARNING",
-            "ERROR",
-        ],
-        default="INFO",
-    )
-
-    return parser
-
-
 def configure_logging(level_name: str) -> None:
     """
     Cấu hình log cho CLI test.
@@ -1392,16 +1255,12 @@ def main() -> int:
 
     Hàm này đồng bộ vì DocumentChunkingService là đồng bộ.
     """
-
-    args = build_argument_parser().parse_args()
-    configure_logging(args.log_level)
+    configure_logging("INFO")
 
     try:
         settings = get_settings()
 
-        service = DocumentChunkingService(
-            settings=settings
-        )
+        service = DocumentChunkingService(settings=settings)
 
         result = service.process_document(
             source_file=Path("document/farbic_warehouse_document.docx"),
@@ -1419,10 +1278,7 @@ def main() -> int:
         return 0
 
     except KeyboardInterrupt:
-        print(
-            "Đã dừng bởi người dùng.",
-            file=sys.stderr,
-        )
+        print("Đã dừng bởi người dùng.", file=sys.stderr)
         return 130
 
     except Exception as exception:
