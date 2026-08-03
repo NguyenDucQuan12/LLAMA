@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 """
-app/ingestion/ingestion_service.py
-
 Điều phối pipeline:
 
     File -> Docling chunks -> Ollama embeddings -> Qdrant points
@@ -32,7 +30,6 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
-
 from qdrant_client import models
 
 # Mở comment 3 dòng bên dưới mỗi khi test (Chạy trực tiếp hàm if __main__)
@@ -43,11 +40,7 @@ sys.path.append(PROJECT_DIR)
 from clients.ollama_client import OllamaClient
 from clients.qdrant_repository import QdrantRepository
 from config import Settings, get_settings
-from ingestion.chunking_service import (
-    ChunkRecord,
-    ChunkingResult,
-    DocumentChunkingService,
-)
+from ingestion.chunking_service import ChunkRecord,ChunkingResult,DocumentChunkingService
 from schemas import IngestedDocumentSummary
 
 
@@ -77,7 +70,7 @@ class DocumentIngestionService:
         self.ollama_client = ollama_client
         self.qdrant_repository = qdrant_repository
         self.chunking_service = chunking_service
-
+        # Xác thực các giá trị đầu vào
         self._validate_configuration()
 
     async def ingest_document(self, source_file: Path, tenant_id: str, document_id: str | None = None, remove_older_versions: bool = True, run_chunking_in_thread: bool = True) -> IngestedDocumentSummary:
@@ -89,13 +82,10 @@ class DocumentIngestionService:
 
         tenant_id:
             ID phân vùng dữ liệu, ví dụ "wms".
-
         document_id:
             ID nghiệp vụ ổn định. Có thể giữ nguyên khi file được cập nhật.
-
         remove_older_versions:
             Chỉ xóa version cũ sau khi version mới đã được xác minh đầy đủ.
-
         run_chunking_in_thread:
             True khi gọi trong FastAPI để Docling không chặn event loop.
         """
@@ -108,24 +98,20 @@ class DocumentIngestionService:
         source_file = Path(source_file)
         output_directory = Path(self.settings.output_directory)
 
-        logger.info(
-            "Bắt đầu ingest: source=%s tenant=%s document_id=%s",
-            source_file,
-            normalized_tenant_id,
-            normalized_document_id,
-        )
+        logger.info("Bắt đầu ingest: source=%s tenant=%s document_id=%s", source_file, normalized_tenant_id, normalized_document_id)
 
         # Docling là xử lý đồng bộ và có thể mất nhiều thời gian.
         if run_chunking_in_thread:
             chunking_result = await asyncio.to_thread(self.chunking_service.process_document, source_file, output_directory, normalized_document_id)
         else:
-            chunking_result = (self.chunking_service.process_document(source_file=source_file, output_directory=output_directory, document_id=normalized_document_id))
+            chunking_result = self.chunking_service.process_document(source_file=source_file, output_directory=output_directory, document_id=normalized_document_id)
 
         if not chunking_result.chunks:
             raise RuntimeError("ChunkingService trả danh sách chunk rỗng.")
+        
         # Đếm số lượng chunk được tạo ra
         expected_point_count = len(chunking_result.chunks)
-
+        # Tạo index phiên bản của tài liệu
         index_version = self._build_index_version(
             source_hash=chunking_result.source_hash,
             chunk_schema_version=(
@@ -148,12 +134,13 @@ class DocumentIngestionService:
             )
         )
 
-        # Tạo bộ đệm để upset từng batch vector vào qdrant
+        # Tạo bộ đệm để upsert từng batch vector vào qdrant
         point_buffer: list[models.PointStruct] = []
         embedded_count = 0
         upserted_count = 0
 
         try:
+            # Tạo từng batch để upsert
             batches = self._create_embedding_batches(
                 chunks=chunking_result.chunks,
                 maximum_items=(self.settings.embedding_batch_size),
@@ -205,6 +192,7 @@ class DocumentIngestionService:
 
                 point_buffer.clear()
                 upserted_count += final_count
+
             # Truy vấn lại số point đã được embedding vào qdrant
             actual_point_count = (
                 await self.qdrant_repository
@@ -307,10 +295,7 @@ class DocumentIngestionService:
 
             exceeds_items = len(current_batch) >= maximum_items
 
-            exceeds_tokens = (
-                bool(current_batch)
-                and (current_tokens + token_count > maximum_total_tokens)
-            )
+            exceeds_tokens = (bool(current_batch) and (current_tokens + token_count > maximum_total_tokens))
 
             if exceeds_items or exceeds_tokens:
                 yield current_batch
@@ -495,10 +480,8 @@ class DocumentIngestionService:
 
     def _build_index_version(self, source_hash: str, chunk_schema_version: str) -> str:
         """
-        Tạo version của vector index.
-
-        Cùng file nhưng đổi chunk schema/model/dimension phải được xem
-        là một index version khác.
+        tạo một chuỗi version (SHA‑256 hex) đại diện cho "phiên bản" của vector index  
+        Dựa trên các tham số quan trọng — dùng để phát hiện khi nào cần rebuild/reindex.
         """
 
         identity = {
@@ -578,11 +561,6 @@ async def test_full_pipeline(
 ) -> None:
     """
     Test một file thật.
-
-    Giả định constructor trong project là:
-        OllamaClient(settings)
-        QdrantRepository(settings)
-        DocumentChunkingService(settings)
     """
 
     settings = get_settings()
@@ -603,9 +581,7 @@ async def test_full_pipeline(
             source_file=source_file,
             tenant_id=tenant_id,
             document_id=document_id,
-            remove_older_versions=(
-                remove_older_versions
-            ),
+            remove_older_versions=remove_older_versions,
             run_chunking_in_thread=True,
         )
 
