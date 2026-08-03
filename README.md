@@ -75,10 +75,14 @@ ollama run llama3.1:8b
 ```
 
 
-Cài đặt môi trường ảo trên `MacOS`:  
+Cài đặt môi trường ảo trên `MacOS` hoặc `Windows`:  
 ```python
 # Tạo môi trường Python riêng cho dự án
-python3 -m venv .venv
+python3 -m venv .llama_venv --prompt="venv llama"
+
+python -m venv .llama_venv --prompt="venv llama"
+```
+```python
 
 # Kích hoạt môi trường
 source .venv/bin/activate
