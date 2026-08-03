@@ -43,7 +43,9 @@ class AnswerContextBuilder:
 
     def build_sources(self, document_chunks: list[RerankedChunk], sql_result: SqlExecutionResponse | None,) -> list[GenerationSource]:
         """
-        Tạo danh sách nguồn D1... và S1...
+        Tạo danh sách nguồn D1... và S1...  
+        D: Document  
+        S: SQL  
         """
 
         # Khởi tạo list sources hợp lệ, và đếm tổng ký tự trong sources
@@ -60,7 +62,7 @@ class AnswerContextBuilder:
             
             # Giới hạn độ dài cho một nguồn, và tính toán độ dài ký tự còn lại có thể sử dụng
             content = self._limit_single_source(content)
-            remaining_characters = (self.settings.answer_max_context_characters - used_characters)
+            remaining_characters = self.settings.answer_max_context_characters - used_characters
 
             # Nếu độ dài cho tổng đã hết thì không xử lý nữa
             if remaining_characters <= 0:
@@ -90,6 +92,11 @@ class AnswerContextBuilder:
             )
             # Cộng số lượng ký tự vào tổng số lượng ký tự đã sử dụng
             used_characters += len(content)
+            
+        """
+        Hiện tại chỉ xử lý 1 SQL result, nếu có nhiều SQL result thì cần phải thay đổi cách đánh nhãn S1, S2, ...
+        Và cần phải thay đổi cách tính toán ký tự còn lại, vì SQL result có thể chiếm nhiều ký tự hơn Document.
+        """
         # Nếu model có sử dụng truy vấn SQL thì xử lý nó
         if (sql_result is not None   # SQL có kết quả
             and sql_result.executed  # Nó đã được thực thi
@@ -99,11 +106,14 @@ class AnswerContextBuilder:
             sql_content = self._format_sql_result(sql_result)
             sql_content = self._limit_single_source(sql_content)
             # Tính số lượng ký tự còn lại cho SQL, nếu Document đã chiếm hết không gian thì SQL có thể bị bỏ
-            remaining_characters = ( self.settings.answer_max_context_characters - used_characters )
+            remaining_characters = self.settings.answer_max_context_characters - used_characters
 
             if remaining_characters >= 300:
                 if len(sql_content) > remaining_characters:
-                    sql_content = (sql_content[:remaining_characters].rstrip()+ "\n[Phần cuối kết quả SQL đã được cắt.]")
+                    # Tính toán số ký tự của chuỗi thêm vào 
+                    suffix = "\n[Phần cuối của kết quả SQL đã được cắt.]"
+                    allowed_content_length = max(0,remaining_characters - len(suffix),)
+                    sql_content = (sql_content[:allowed_content_length].rstrip()+ suffix)
 
                 sources.append(
                     GenerationSource(
@@ -207,18 +217,17 @@ class AnswerContextBuilder:
         """
         Không để một nguồn chiếm toàn bộ context.
         """
-
-        maximum_characters = (
-            self.settings.answer_max_characters_per_document
-        )
+        # Độ dài tối đa cho một nguồn, ví dụ 3000 ký tự, nếu vượt quá thì cắt bớt và thêm thông báo
+        maximum_characters = self.settings.answer_max_characters_per_document
 
         if len(content) <= maximum_characters:
             return content
         
-        suffix = "\n[Phần cuối nguồn đã được cắt do giới hạn.]"
-
+        suffix = "\n[Nguồn đã được cắt do giới hạn.]"
+        # Tính toán số ký tự còn lại cho phép, nếu không còn thì trả về chuỗi rỗng
         allowed_length = max(0,maximum_characters - len(suffix),)
 
+        # Trả về chuỗi được cắt bớt tại allowed_length và thêm suffix thông báo
         return (content[:allowed_length].rstrip()+ suffix)
     
 if __name__ == "__main__":
