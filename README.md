@@ -57,7 +57,8 @@ RRF sẽ gộp 2 danh sách lại.
 LLM chỉ trả lời dựa trên context đã gộp.
 ```
 
-
+# OLLAMA
+Để sử dụng những AI, ta cần một nơi quản lý nó, gọi là OLLAMA
 
 
 Tải mô hình `llama 3.1b`:  
@@ -75,20 +76,29 @@ ollama run llama3.1:8b
 ```
 
 
+# Chạy code
+
 Cài đặt môi trường ảo trên `MacOS` hoặc `Windows`:  
 ```python
 # Tạo môi trường Python riêng cho dự án
+# MacOS
 python3 -m venv .llama_venv --prompt="venv llama"
-
+# Windows
 python -m venv .llama_venv --prompt="venv llama"
 ```
+Sau đó kích hoạt môi trường ảo  
 ```python
-
-# Kích hoạt môi trường
+# Kích hoạt môi trường ảo trên MacOS
 source .venv/bin/activate
-
-# Nâng cấp pip
-python -m pip install --upgrade pip
+# Kích hoạt môi trường ảo trên Win
+.llama_venv\Scripts\activate
+```
+Tiến hành cài đặt các thư viện cần thiết  
+```python
+# Trên MacOS
+python3 -m pip install -r requirements.txt
+# Trên Win
+python -m pip install -r requirements.txt
 ```
 
 Cài đa
