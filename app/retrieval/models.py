@@ -5,13 +5,13 @@ Các model nội bộ của retrieval và reranking.
 """
 
 from typing import Any
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class RetrievedChunk(BaseModel):
     """
-    Một chunk do Qdrant trả về ở bước top 20.
+    Một chunk do Qdrant trả về ở bước top 20.  
+    Là bước đầu tiên khi tìm thấy các tài liệu liên quan đến câu hỏi
     """
 
     model_config = ConfigDict(extra="ignore")
@@ -32,7 +32,7 @@ class RetrievedChunk(BaseModel):
 
 class RerankedChunk(RetrievedChunk):
     """
-    Một chunk sau khi cross-encoder chấm lại.
+    Điểm số của một chunk sau khi cross-encoder chấm lại.
     """
 
     reranker_score: float | None = None
