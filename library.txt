@@ -1,0 +1,7 @@
+pip install httpx
+pip install qdrant-client
+pip install docling
+pip install "fastapi[standard]"
+pip install SQLAlchemy
+pip install pyodbc
+pip install sentence-transformers
