@@ -1,3 +1,20 @@
 # Thư mục môi trường ảo
 .llama_venv/
 .llamavenv/
+
+
+# Visual code
+.vscode/
+
+
+# Các tệp tạm thời
+*.tmp
+
+# các tệp sinh ra từ Python
+__pycache__/
+
+
+
+
+# Thư mục chứa qdrant nội bộ
+qdrant_local_storage/
