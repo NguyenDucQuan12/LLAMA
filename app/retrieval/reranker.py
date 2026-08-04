@@ -4,7 +4,8 @@ from __future__ import annotations
 
 MỤC ĐÍCH
 --------
-Rerank các document đã được Qdrant tìm thấy.
+Rerank các document đã được Qdrant tìm thấy.  
+Chọn lọc từ 20 vector tìm thấy xuống còn 5 vector tốt nhất
 
 Pipeline thường là:
 
@@ -31,30 +32,6 @@ Vì vậy production thường:
     dense retrieval: lấy nhanh 20-100 ứng viên
     cross-encoder: chấm lại tập ứng viên nhỏ
     Llama: chỉ nhận top 5-10
-
-CÁCH CHẠY TEST
---------------
-Đặt file tại:
-
-    app/retrieval/cross_encoder_reranker.py
-
-Chạy từ thư mục gốc project:
-
-1. Unit test, không tải model và không cần Internet:
-
-    python3 -m app.retrieval.cross_encoder_reranker \
-        --mode unit
-
-2. Test bằng model thật trong Settings:
-
-    python3 -m app.retrieval.cross_encoder_reranker \
-        --mode model
-
-LƯU Ý
------
-- `--mode model` có thể tải model từ Hugging Face trong lần đầu.
-- Hãy tạo service trong cùng event loop/lifespan của FastAPI.
-- Không dùng cùng object qua nhiều lần `asyncio.run()`.
 """
 
 # argparse: đọc tham số --mode unit hoặc --mode model.
@@ -133,9 +110,7 @@ class CrossEncoderDocumentReranker:
         maximum_concurrency = getattr(self.settings, "reranker_max_concurrency", 1)
 
         # _validate_configuration() đã xác nhận đây là int > 0.
-        self.predict_semaphore = asyncio.Semaphore(
-            maximum_concurrency
-        )
+        self.predict_semaphore = asyncio.Semaphore(maximum_concurrency)
 
     async def rerank(self, question: str, candidates: Sequence[RetrievedChunk], top_k: int | None = None) -> list[RerankedChunk]:
         """
@@ -198,7 +173,7 @@ class CrossEncoderDocumentReranker:
         # Xoá các bản candidate trùng nhau
         deduplicated_candidates = self._remove_exact_duplicates(validated_candidates)
 
-        # Nếu danh sách candidate ít hơn số lượng kỳ vọng thì chỉ lấy đúng số cánisate tìm được
+        # Nếu danh sách candidate ít hơn số lượng kỳ vọng thì chỉ lấy đúng số candidate tìm được
         selected_top_k = min(selected_top_k, len(deduplicated_candidates))
 
         # ----------------------------------------------------
@@ -241,12 +216,13 @@ class CrossEncoderDocumentReranker:
 
             scored_candidates: list[RerankedChunk] = []
 
+            # Duyệt đồng thời danh sách chunk và điểm rerank tương ứng
             # strict=True ngăn việc âm thầm bỏ candidate nếu hai list có độ dài khác nhau.
             for candidate, reranker_score in zip(deduplicated_candidates, reranker_scores, strict=True):
+                # Chuyển đổi điểm dense score của chunk về trong khoảng [0,1]
                 normalized_dense_score = self._normalize_dense_score(candidate.dense_score)
 
-                # Khi hai trọng số đã được chuẩn hóa và cả hai score
-                # trong [0,1], final_score cũng nằm trong [0,1].
+                # Khi hai trọng số đã được chuẩn hóa và cả hai score trong [0,1], final_score cũng nằm trong [0,1].
                 final_score = (
                     reranker_weight
                     * reranker_score
@@ -254,17 +230,19 @@ class CrossEncoderDocumentReranker:
                     * normalized_dense_score
                 )
 
+                # Chuyển object candidate từ pydantic thành dict
                 candidate_data = self._candidate_to_dictionary(candidate)
 
-                # Bảo vệ trường hợp object đầu vào đã có hai field này.
+                # Lấy 2 trường này ra khỏi candidate, vì tí nữa tạo RerankedChunk không lặp lại 2 trường này
                 candidate_data.pop("reranker_score", None)
                 candidate_data.pop("final_score", None)
 
+                # Thêm chunk đã tính lại điểm số vào danh sách đầu ra
                 scored_candidates.append(
                     RerankedChunk(
-                        **candidate_data,
-                        reranker_score=reranker_score,
-                        final_score=float(final_score),
+                        **candidate_data,                # Giữ nguyên các tham số ban đầu
+                        reranker_score=reranker_score,   # Thêm lại trường rerank_score
+                        final_score=float(final_score),  # Thêm lại trường final_score
                     )
                 )
 
@@ -287,8 +265,7 @@ class CrossEncoderDocumentReranker:
 
             # logger.exception in cả traceback.
             logger.exception(
-                "Reranker thất bại. "
-                "Hệ thống tạm dùng dense score Qdrant."
+                "Reranker thất bại. Hệ thống tạm dùng dense score Qdrant."
             )
 
             return self._dense_fallback(candidates=deduplicated_candidates, top_k=selected_top_k)
@@ -575,7 +552,7 @@ class CrossEncoderDocumentReranker:
 
         Nhờ vậy người vận hành không bắt buộc nhập đúng tổng 1.
         """
-
+        # Lấy các tham số rẻank và dense
         reranker_weight = float(self.settings.reranker_score_weight)
         dense_weight = float(self.settings.dense_score_weight)
 
@@ -585,6 +562,7 @@ class CrossEncoderDocumentReranker:
         if (reranker_weight < 0 or dense_weight < 0):
             raise ValueError("Các score weight không được âm.")
 
+        # Tính tổng hai tham số
         total_weight = (reranker_weight + dense_weight)
 
         if total_weight <= 0:
@@ -957,31 +935,8 @@ class CrossEncoderDocumentReranker:
 
 
 # ============================================================
-# UNIT TEST KHÔNG CẦN MODEL THẬT
+# UNIT TEST
 # ============================================================
-
-@dataclass
-class _TestSettings:
-    """
-    Settings giả chỉ chứa field reranker sử dụng.
-    """
-
-    rerank_top_k: int = 3
-    reranker_enabled: bool = True
-    reranker_allow_dense_fallback: bool = True
-
-    reranker_model_name: str = "fake-model"
-    reranker_batch_size: int = 4
-    reranker_device: str = "cpu"
-    reranker_max_length: int = 512
-    reranker_max_concurrency: int = 1
-    reranker_apply_sigmoid: bool = True
-
-    reranker_score_weight: float = 8.0
-    dense_score_weight: float = 2.0
-
-    reranker_duplicate_jaccard_threshold: float = 0.55
-
 
 @dataclass
 class _TestRetrievedChunk:
@@ -1027,83 +982,6 @@ class _TestRerankedChunk:
 
     def model_dump(self) -> dict[str, Any]:
         return dict(self.__dict__)
-
-
-class _FakeCrossEncoder:
-    """
-    Fake model chấm điểm bằng từ khóa.
-
-    Không tải model, không dùng GPU và chạy rất nhanh.
-    """
-
-    def predict(
-        self,
-        sentence_pairs: Sequence[
-            tuple[str, str]
-        ],
-        **_: Any,
-    ) -> list[float]:
-        scores: list[float] = []
-
-        for _, document in sentence_pairs:
-            normalized = document.lower()
-
-            if "nhấn nút call robot" in normalized:
-                scores.append(0.96)
-            elif "gửi nhiệm vụ gọi robot" in normalized:
-                scores.append(0.90)
-            elif "robot không chạy" in normalized:
-                scores.append(0.78)
-            elif "tồn kho" in normalized:
-                scores.append(0.12)
-            else:
-                scores.append(0.30)
-
-        return scores
-
-
-class _UnitTestReranker(
-    CrossEncoderDocumentReranker
-):
-    """
-    Override đúng method tạo model để unit test không download.
-    """
-
-    def _create_model_sync(
-        self,
-        selected_device: str,
-    ) -> CrossEncoder:
-        del selected_device
-
-        # Cast runtime không cần thiết;
-        # Python dùng duck typing vì _predict_scores chỉ gọi predict().
-        return _FakeCrossEncoder()  # type: ignore[return-value]
-
-
-class _FailingCrossEncoder:
-    """
-    Fake model luôn lỗi để test dense fallback.
-    """
-
-    def predict(
-        self,
-        *_: Any,
-        **__: Any,
-    ) -> list[float]:
-        raise RuntimeError(
-            "Lỗi model giả phục vụ test."
-        )
-
-
-class _FailingTestReranker(
-    CrossEncoderDocumentReranker
-):
-    def _create_model_sync(
-        self,
-        selected_device: str,
-    ) -> CrossEncoder:
-        del selected_device
-        return _FailingCrossEncoder()  # type: ignore[return-value]
 
 
 def _make_test_candidates() -> list[
@@ -1167,231 +1045,8 @@ def _make_test_candidates() -> list[
         ),
     ]
 
-
-async def test_unit_rerank() -> None:
-    """
-    Test luồng cross-encoder bằng fake model.
-    """
-
-    settings = _TestSettings()
-    reranker = _UnitTestReranker(
-        settings  # type: ignore[arg-type]
-    )
-
-    # RerankedChunk là import của project.
-    # Unit test tạm thay bằng class giả để không phụ thuộc schema thật.
-    original_reranked_chunk = globals()[
-        "RerankedChunk"
-    ]
-    globals()["RerankedChunk"] = (
-        _TestRerankedChunk
-    )
-
-    try:
-        candidates = _make_test_candidates()
-
-        result = await reranker.rerank(
-            question=(
-                "Làm thế nào để gọi robot "
-                "và xử lý khi robot không chạy?"
-            ),
-            candidates=candidates,  # type: ignore[arg-type]
-            top_k=3,
-        )
-
-        serialized = [
-            item.model_dump()
-            for item in result
-        ]
-
-        print("=" * 80)
-        print("UNIT TEST: CROSS-ENCODER RERANK")
-        print("=" * 80)
-        print(
-            json.dumps(
-                serialized,
-                ensure_ascii=False,
-                indent=2,
-            )
-        )
-
-        returned_ids = [
-            item.point_id
-            for item in result
-        ]
-
-        # D4 là exact duplicate có dense thấp hơn nên phải bị loại.
-        assert "D4" not in returned_ids
-
-        # D1 phải đứng đầu vì fake cross-encoder chấm cao.
-        assert returned_ids[0] == "D1"
-
-        # Đủ đúng top 3.
-        assert len(result) == 3
-
-        # final_score phải nằm trong [0,1].
-        assert all(
-            0 <= item.final_score <= 1
-            for item in result
-        )
-
-        print(
-            "\nKẾT QUẢ: unit rerank thành công."
-        )
-
-    finally:
-        globals()["RerankedChunk"] = (
-            original_reranked_chunk
-        )
-
-
-async def test_dense_disabled() -> None:
-    """
-    Test khi reranker_enabled=False.
-    """
-
-    settings = _TestSettings(
-        reranker_enabled=False
-    )
-
-    reranker = _UnitTestReranker(
-        settings  # type: ignore[arg-type]
-    )
-
-    original_reranked_chunk = globals()[
-        "RerankedChunk"
-    ]
-    globals()["RerankedChunk"] = (
-        _TestRerankedChunk
-    )
-
-    try:
-        result = await reranker.rerank(
-            question="Câu hỏi test",
-            candidates=(  # type: ignore[arg-type]
-                _make_test_candidates()
-            ),
-            top_k=2,
-        )
-
-        # D2 có dense_score cao nhất nên đứng đầu fallback.
-        assert result[0].point_id == "D2"
-        assert result[0].reranker_score is None
-
-        print(
-            "KẾT QUẢ: dense disabled fallback thành công."
-        )
-
-    finally:
-        globals()["RerankedChunk"] = (
-            original_reranked_chunk
-        )
-
-
-async def test_model_failure_fallback() -> None:
-    """
-    Test model lỗi nhưng cấu hình cho phép dense fallback.
-    """
-
-    settings = _TestSettings(
-        reranker_allow_dense_fallback=True
-    )
-
-    reranker = _FailingTestReranker(
-        settings  # type: ignore[arg-type]
-    )
-
-    original_reranked_chunk = globals()[
-        "RerankedChunk"
-    ]
-    globals()["RerankedChunk"] = (
-        _TestRerankedChunk
-    )
-
-    try:
-        result = await reranker.rerank(
-            question="Câu hỏi test",
-            candidates=(  # type: ignore[arg-type]
-                _make_test_candidates()
-            ),
-            top_k=2,
-        )
-
-        assert len(result) == 2
-        assert all(
-            item.reranker_score is None
-            for item in result
-        )
-
-        print(
-            "KẾT QUẢ: model failure fallback thành công."
-        )
-
-    finally:
-        globals()["RerankedChunk"] = (
-            original_reranked_chunk
-        )
-
-
-async def test_input_validation() -> None:
-    """
-    Test các lỗi input phải bị chặn.
-    """
-
-    reranker = _UnitTestReranker(
-        _TestSettings()  # type: ignore[arg-type]
-    )
-
-    candidates = _make_test_candidates()
-
-    try:
-        await reranker.rerank(
-            question="   ",
-            candidates=candidates,  # type: ignore[arg-type]
-        )
-    except ValueError:
-        pass
-    else:
-        raise AssertionError(
-            "Câu hỏi rỗng phải gây ValueError."
-        )
-
-    try:
-        await reranker.rerank(
-            question="Câu hỏi",
-            candidates=candidates,  # type: ignore[arg-type]
-            top_k=0,
-        )
-    except ValueError:
-        pass
-    else:
-        raise AssertionError(
-            "top_k=0 phải gây ValueError."
-        )
-
-    print(
-        "KẾT QUẢ: input validation thành công."
-    )
-
-
-async def run_all_unit_tests() -> None:
-    """
-    Chạy tất cả test không cần model thật.
-    """
-
-    await test_unit_rerank()
-    await test_dense_disabled()
-    await test_model_failure_fallback()
-    await test_input_validation()
-
-    print()
-    print("=" * 80)
-    print("TOÀN BỘ UNIT TEST ĐÃ THÀNH CÔNG")
-    print("=" * 80)
-
-
 # ============================================================
-# TEST MODEL THẬT
+# TEST
 # ============================================================
 
 async def test_real_model() -> None:
@@ -1402,24 +1057,39 @@ async def test_real_model() -> None:
     """
 
     settings = get_settings()
-    reranker = CrossEncoderDocumentReranker(
-        settings
-    )
+    reranker = CrossEncoderDocumentReranker(settings)
+    # Lấy các giá trị hiện tại của biến RerankChunk
+    original_reranked_chunk = globals()["RerankedChunk"]
+    # Gán lại biến rerankChunk thành TestrerankChunk
+    globals()["RerankedChunk"] = (_TestRerankedChunk)
 
-    original_reranked_chunk = globals()[
-        "RerankedChunk"
-    ]
-    globals()["RerankedChunk"] = (
-        _TestRerankedChunk
-    )
+    """
+    class Real:
+        def __init__(self):
+            print("Real class")
+
+    class Fake:
+        def __init__(self):
+            print("Fake class")
+
+    # Lưu class gốc
+    orig = globals()["Real"]
+
+    # Thay thế
+    globals()["Real"] = Fake
+
+    x = Real()   # sẽ in "Fake class"
+
+    # Phục hồi
+    globals()["Real"] = orig
+    y = Real()   # sẽ in "Real class"
+    """
 
     try:
         candidates = _make_test_candidates()
 
         result = await reranker.rerank(
-            question=(
-                "Làm thế nào để gọi robot nhận hàng?"
-            ),
+            question=("Làm thế nào để gọi robot nhận hàng?"),
             candidates=candidates,  # type: ignore[arg-type]
             top_k=3,
         )
@@ -1444,64 +1114,15 @@ async def test_real_model() -> None:
             original_reranked_chunk
         )
 
-
-# ============================================================
-# CLI VÀ __main__
-# ============================================================
-
-def build_argument_parser() -> (
-    argparse.ArgumentParser
-):
-    """
-    Tạo command-line parser.
-    """
-
-    parser = argparse.ArgumentParser(
-        description=(
-            "Test CrossEncoderDocumentReranker."
-        )
-    )
-
-    parser.add_argument(
-        "--mode",
-        choices=[
-            "unit",
-            "model",
-        ],
-        default="unit",
-        help=(
-            "unit: fake model, không download; "
-            "model: dùng Settings và model thật."
-        ),
-    )
-
-    parser.add_argument(
-        "--log-level",
-        choices=[
-            "DEBUG",
-            "INFO",
-            "WARNING",
-            "ERROR",
-        ],
-        default="INFO",
-    )
-
-    return parser
-
-
 async def main() -> None:
     """
     Main coroutine duy nhất.
-
-    Một chương trình CLI async chỉ nên gọi asyncio.run() một lần.
     """
-
-    args = build_argument_parser().parse_args()
 
     logging.basicConfig(
         level=getattr(
             logging,
-            args.log_level,
+            "INFO",
         ),
         format=(
             "%(asctime)s | %(levelname)s | "
@@ -1509,18 +1130,8 @@ async def main() -> None:
         ),
     )
 
-    if args.mode == "unit":
-        await run_all_unit_tests()
-        return
-
-    if args.mode == "model":
-        await test_real_model()
-        return
-
-    raise RuntimeError(
-        f"Mode không hỗ trợ: {args.mode}"
-    )
-
+    await test_real_model()
+    return
 
 if __name__ == "__main__":
     try:
