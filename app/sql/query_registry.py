@@ -303,30 +303,30 @@ class PredefinedSqlQueryRegistry:
             SqlQueryDefinition(
                 key="agv_tasks_today",
                 description=(
-                    "Lấy tối đa 100 nhiệm vụ AGV được tạo trong ngày hôm nay, "
+                    "Lấy tối đa 1000 nhiệm vụ AGV được tạo trong ngày hôm nay, "
                     "gồm mã nhiệm vụ, robot, trạng thái, vị trí nguồn và đích."
                 ),
                 sql_text="""
-                SELECT TOP (100)
-                    task_id,
+                SELECT TOP (1000)
+                    task_type,
                     task_code,
-                    robot_code,
-                    task_status,
-                    source_location,
-                    target_location,
-                    created_at,
-                    completed_at
-                FROM dbo.vw_rag_agv_tasks
-                WHERE created_at >= CONVERT(date, GETDATE())
-                AND created_at < DATEADD(day, 1, CONVERT(date, GETDATE()))
-                ORDER BY created_at DESC
+                    task_grade,
+                    from_location_code,
+                    to_location_code,
+                    container_code,
+                    creation_time,
+                    task_status
+                FROM dbo.agv_efork_task
+                WHERE creation_time >= CONVERT(date, GETDATE())
+                AND creation_time < DATEADD(day, 1, CONVERT(date, GETDATE()))
+                ORDER BY creation_time DESC
                 """.strip(),
                 keyword_hints=(
                     "hôm nay robot nhận lệnh gì",
                     "nhiệm vụ robot hôm nay",
                     "agv task today",
                 ),
-                maximum_rows=100,
+                maximum_rows=1000,
             ),
             SqlQueryDefinition(
                 key="pallet_by_location",
@@ -335,16 +335,12 @@ class PredefinedSqlQueryRegistry:
                     "cụ thể, ví dụ A1-2 hoặc F3-29."
                 ),
                 sql_text="""
-                SELECT TOP (50)
-                    location_code,
-                    pallet_code,
-                    material_code,
-                    quantity,
-                    stock_status,
-                    updated_at
-                FROM dbo.vw_rag_pallet_locations
-                WHERE location_code = :location_code
-                ORDER BY updated_at DESC
+                SELECT A.store_type_code,B.store_area_code,C.location_code,b.forbid_agv_use
+                FROM dbo.wms_store A(NOLOCK)
+                JOIN dbo.wms_store_area B(NOLOCK) ON B.store_id=A.id
+                JOIN dbo.wms_store_location C(NOLOCK) ON C.store_area_id=B.id
+                WHERE A.store_type_code IN ('F')
+                AND B.store_area_code= :location_code
                 """.strip(),
                 parameters=(
                     SqlParameterDefinition(
@@ -370,17 +366,16 @@ class PredefinedSqlQueryRegistry:
                     "vị trí và trạng thái tồn kho."
                 ),
                 sql_text="""
-                SELECT TOP (50)
-                    qr_code,
-                    material_code,
-                    fabric_name,
-                    pallet_code,
-                    location_code,
-                    stock_status,
-                    updated_at
-                FROM dbo.vw_rag_fabric_rolls
-                WHERE qr_code = :qr_code
-                ORDER BY updated_at DESC
+                SELECT C.id,C.seq AS precedence,B.store_area_code AS location_code,C.location_code AS container_code
+                FROM dbo.wms_store A(NOLOCK)
+                JOIN dbo.wms_store_area B(NOLOCK) ON B.store_id=A.id
+                JOIN dbo.wms_store_location C(NOLOCK) ON C.store_area_id=B.id
+                JOIN dbo.wms_stock_entity E(NOLOCK) ON E.stock_location_id=C.id
+                WHERE A.store_type_code IN ('F')
+                AND B.store_area_code NOT IN ('TEMP','TMP')-- AND C.is_moving=0
+                AND LEN(B.store_area_code)<=5 
+                and E.barcode = :qr_code
+                ORDER BY B.seq
                 """.strip(),
                 parameters=(
                     SqlParameterDefinition(
@@ -408,26 +403,24 @@ class PredefinedSqlQueryRegistry:
                     "mã nhiệm vụ cụ thể."
                 ),
                 sql_text="""
-                SELECT TOP (20)
-                    task_id,
-                    task_code,
-                    robot_code,
-                    task_status,
-                    source_location,
-                    target_location,
-                    error_code,
-                    error_message,
-                    created_at,
-                    completed_at
-                FROM dbo.vw_rag_agv_tasks
+                SELECT TOP 1000 
+                task_type,
+                task_code,
+                task_grade,
+                from_location_code,
+                to_location_code,
+                container_code,
+                creation_time,
+                task_status 
+                FROM agv_efork_task 
                 WHERE task_code = :task_code
-                ORDER BY created_at DESC
+                ORDER BY creation_time DESC
                 """.strip(),
                 parameters=(
                     SqlParameterDefinition(
                         name="task_code",
                         parameter_type=SqlParameterType.STRING,
-                        description="Mã nhiệm vụ AGV cần tra cứu.",
+                        description="Mã nhiệm vụ AGV cần tra cứu ví dụ: T2607002265.",
                         required=True,
                         maximum_length=100,
                         pattern=r"[A-Za-z0-9_.-]+",
@@ -443,29 +436,21 @@ class PredefinedSqlQueryRegistry:
             SqlQueryDefinition(
                 key="recent_agv_errors",
                 description=(
-                    "Lấy các lỗi AGV gần nhất trong 24 giờ để kiểm tra lỗi "
-                    "robot, vị trí và thông báo lỗi."
+                    "LẤy danh sách tất cả các vị trị hiện tại gồm mã palet, mã vị trí trong kho"
                 ),
                 sql_text="""
-                SELECT TOP (100)
-                    task_code,
-                    robot_code,
-                    error_code,
-                    error_message,
-                    source_location,
-                    target_location,
-                    created_at
-                FROM dbo.vw_rag_agv_tasks
-                WHERE error_code IS NOT NULL
-                AND created_at >= DATEADD(hour, -24, GETDATE())
-                ORDER BY created_at DESC
+                SELECT A.store_type_code,B.store_area_code,C.location_code,b.forbid_agv_use
+                FROM dbo.wms_store A(NOLOCK)
+                JOIN dbo.wms_store_area B(NOLOCK) ON B.store_id=A.id
+                JOIN dbo.wms_store_location C(NOLOCK) ON C.store_area_id=B.id
+                WHERE A.store_type_code IN ('F')
+                ORDER BY B.store_area_code
                 """.strip(),
                 keyword_hints=(
-                    "lỗi robot gần đây",
-                    "agv error",
-                    "robot đang lỗi",
+                    "vị trí kho",
+                    "tất cả vị trí trong kho"
                 ),
-                maximum_rows=100,
+                maximum_rows=1000,
             ),
         ]
 
