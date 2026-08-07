@@ -800,7 +800,7 @@ class SafeSqlServerService:
 TEST_QUERY_KEY = "pallet_by_location"
 
 # Parameter phải khớp query definition thật.
-TEST_PARAMETERS: dict[str, Any] = {"location_code": "K1-10",}     #{}
+TEST_PARAMETERS: dict[str, Any] = {"location_code": "K1-09",}     #{}
 
 # "query" hoặc "procedure".
 # Hai loại đều dùng registry; biến này chỉ chọn method dễ đọc trong test.
