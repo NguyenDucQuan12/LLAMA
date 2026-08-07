@@ -56,6 +56,11 @@ from sqlalchemy import URL, text
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError, TimeoutError as SqlAlchemyPoolTimeoutError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
+# Mở comment 3 dòng bên dưới mỗi khi test (Chạy trực tiếp hàm if __main__)
+import os,sys
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(PROJECT_DIR)
+
 from config import Settings, get_settings
 from schemas import SqlExecutionResponse
 from sql.query_registry import PredefinedSqlQueryRegistry
@@ -380,15 +385,8 @@ class SafeSqlServerService:
 
             self._raise_if_closed()
 
-            connection_string = getattr(
-                self.settings,
-                "sql_server_odbc_connection_string",
-                "",
-            )
-            if (
-                not isinstance(connection_string, str)
-                or not connection_string.strip()
-            ):
+            connection_string = getattr(self.settings, "sql_server_odbc_connection_string", "")
+            if ( not isinstance(connection_string, str) or not connection_string.strip() ):
                 raise RuntimeError(
                     "sql_server_odbc_connection_string đang rỗng."
                 )
@@ -799,10 +797,10 @@ class SafeSqlServerService:
 #     TEST_QUERY_KEY = "get_robot_status"
 # Ví dụ procedure:
 #     TEST_QUERY_KEY = "get_robot_status_procedure"
-TEST_QUERY_KEY = "get_robot_status"
+TEST_QUERY_KEY = "pallet_by_location"
 
 # Parameter phải khớp query definition thật.
-TEST_PARAMETERS: dict[str, Any] = {"robot_id": "AGV-01",}
+TEST_PARAMETERS: dict[str, Any] = {"location_code": "K1-10",}     #{}
 
 # "query" hoặc "procedure".
 # Hai loại đều dùng registry; biến này chỉ chọn method dễ đọc trong test.
@@ -810,10 +808,10 @@ TEST_EXECUTION_TYPE = "query"
 
 # False: chỉ chạy một lần.
 # True: chạy nhiều request đồng thời bằng cùng engine/pool.
-TEST_RUN_CONCURRENCY_TEST = False
+TEST_RUN_CONCURRENCY_TEST = True
 
 # Chỉ có hiệu lực khi TEST_RUN_CONCURRENCY_TEST=True.
-TEST_CONCURRENT_CALLS = 5
+TEST_CONCURRENT_CALLS = 7
 
 
 async def _close_if_supported(resource: Any) -> None:
@@ -836,9 +834,7 @@ async def _close_if_supported(resource: Any) -> None:
         return
 
 
-def _response_to_dict(
-    response: SqlExecutionResponse,
-) -> dict[str, Any]:
+def _response_to_dict(response: SqlExecutionResponse) -> dict[str, Any]:
     """Hỗ trợ cả Pydantic v2 và v1."""
 
     model_dump = getattr(response, "model_dump", None)
@@ -917,10 +913,6 @@ async def _execute_test_call(
 async def main() -> None:
     """
     Test SQL Server và registry thật.
-
-    Không tạo dữ liệu giả và không dùng argparse.
-    Bạn chỉ cần sửa TEST_QUERY_KEY, TEST_PARAMETERS và
-    TEST_EXECUTION_TYPE ở phía trên.
     """
 
     logging.basicConfig(
@@ -945,17 +937,10 @@ async def main() -> None:
 
     try:
         # In catalog để biết các key đang có.
-        list_for_router = getattr(
-            query_registry,
-            "list_for_router",
-            None,
-        )
+        list_for_router = getattr(query_registry, "list_for_router", None)
 
         if callable(list_for_router):
-            _print_json(
-                "PREDEFINED SQL CATALOG",
-                list_for_router(),
-            )
+            _print_json("PREDEFINED SQL CATALOG", list_for_router())
 
         # Kiểm tra test key trước khi kết nối database.
         try:
