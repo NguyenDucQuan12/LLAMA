@@ -133,7 +133,15 @@ class Settings(BaseSettings):
     # PWD=your_password;
     # Encrypt=yes;
     # TrustServerCertificate=yes;
-    sql_server_odbc_connection_string: str = "abc"
+    sql_server_odbc_connection_string: str = (
+        "DRIVER={ODBC Driver 17 for SQL Server};"
+        "SERVER=172.24.48.159,25678;"
+        "DATABASE=vietthien;"
+        "UID=test_only;"
+        "PWD=test;"
+        "Encrypt=yes;"
+        "TrustServerCertificate=yes;"
+    )
 
     sql_server_pool_size: int = 5
     sql_server_max_overflow: int = 5
