@@ -31,7 +31,29 @@ class SqlParameterType(str, Enum):
 @dataclass(frozen=True)
 class SqlParameterDefinition:
     """
-    Mô tả và quy tắc kiểm tra một bind parameter.
+    Mô tả và quy tắc kiểm tra một bind parameter.  
+    Ví dụ:  
+    ```python
+    SqlQueryDefinition(
+        key="pallet_by_location",
+        description="Tra cứu pallet ...",
+        sql_text=\"""
+            SELECT TOP (50) ...
+            WHERE location_code = :location_code
+        \""".strip(),
+        parameters=(
+            SqlParameterDefinition(
+                name="location_code",
+                parameter_type=SqlParameterType.STRING,
+                description="Mã vị trí kho, ví dụ A1-2 hoặc F3-29.",
+                required=True,
+                maximum_length=50,
+                pattern=r"[A-Za-z0-9_-]+",
+            ),
+        ),
+    )
+    ```
+    Thì parameter tuân theo như trên
     """
 
     name: str
@@ -132,71 +154,57 @@ class SqlQueryDefinition:
     key: str
     description: str
     sql_text: str
-    parameters: tuple[SqlParameterDefinition, ...] = field(
-        default_factory=tuple
-    )
+    parameters: tuple[SqlParameterDefinition, ...] = field(default_factory=tuple)
     keyword_hints: tuple[str, ...] = field(default_factory=tuple)
     maximum_rows: int = 100
 
-    def validate_parameters(
-        self,
-        provided_parameters: dict[str, Any],
-    ) -> dict[str, Any]:
+    def validate_parameters(self, provided_parameters: dict[str, Any]) -> dict[str, Any]:
         """
-        Chỉ giữ và kiểm tra các parameter được query định nghĩa.
+        Chỉ giữ và kiểm tra các tham số được câu truy vấn định nghĩa.
 
-        Parameter lạ bị từ chối để tránh caller nghĩ rằng nó có ảnh hưởng
+        Các tham số lạ lạ bị từ chối để tránh người gọi nghĩ rằng nó có ảnh hưởng
         tới SQL trong khi thực tế không được bind.
         """
-
-        allowed_parameter_names = {
-            parameter.name for parameter in self.parameters
-        }
-
-        unexpected_parameter_names = (
-            set(provided_parameters) - allowed_parameter_names
-        )
+        # Lấy danh sách tên các tham số mà sql yêu cầu
+        allowed_parameter_names = {parameter.name for parameter in self.parameters}
+        # Lấy danh sách các tham số mà không được đăng ký
+        unexpected_parameter_names = set(provided_parameters) - allowed_parameter_names
 
         if unexpected_parameter_names:
             raise ValueError(
-                "Query nhận parameter không được khai báo: "
+                "Câu truy vấn nhận được các tham số không được đăng ký: "
                 f"{sorted(unexpected_parameter_names)}."
             )
 
         validated_parameters: dict[str, Any] = {}
-
+        # Duyệt qua danh sách các tham số trong câu truy vấn
         for parameter_definition in self.parameters:
-            raw_value = provided_parameters.get(
-                parameter_definition.name
-            )
-
+            # Lấy các giá trị tham số
+            raw_value = provided_parameters.get(parameter_definition.name)
             validated_value = parameter_definition.validate(raw_value)
 
+            # Nếu có giá trị thì thêm nó vào danh sách tham số
             if validated_value is not None:
-                validated_parameters[
-                    parameter_definition.name
-                ] = validated_value
+                validated_parameters[parameter_definition.name] = validated_value
 
         return validated_parameters
 
-    def missing_required_parameters(
-        self,
-        provided_parameters: dict[str, Any],
-    ) -> list[str]:
+    def missing_required_parameters(self, provided_parameters: dict[str, Any]) -> list[str]:
         """
-        Liệt kê parameter bắt buộc còn thiếu mà chưa raise exception.
+        Liệt kê danh sách tham số mà câu truy vấn bắt buộc còn thiếu
         """
-
+        # Tạo list chứa các tham số còn thiếu để thông báo tới người gọi
         missing_parameters: list[str] = []
-
+        # Duyệt qua danh sách tham số mà câu truy vấn này chấp nhận
         for parameter_definition in self.parameters:
+            # Nếu không phải trường bắt buộc (required = True) thì có thể bỏ qua
             if not parameter_definition.required:
                 continue
+            
+            # Lấy giá trị cảu tham số này
+            raw_value = provided_parameters.get(parameter_definition.name)
 
-            raw_value = provided_parameters.get(
-                parameter_definition.name
-            )
-
+            # Nếu tham số này là bắt buộc, nhưng nó không có giá trị thì thêm nó vào danh sách thiếu
             if raw_value is None or not str(raw_value).strip():
                 missing_parameters.append(parameter_definition.name)
 
@@ -232,16 +240,19 @@ class PredefinedSqlQueryRegistry:
 
     def get(self, query_key: str) -> SqlQueryDefinition:
         """
-        Lấy query theo key hoặc báo lỗi rõ ràng.
+        Lấy mẫu truy vấn theo key (là từ khoá của mẫu truy vấn) hoặc báo lỗi rõ ràng.  
+        Ví dụ:  
+        ```python
+        {
+            "agv_tasks_today": SqlQueryDefinition
+        }
         """
-
+        # Chuẩn hoá key
         normalized_key = query_key.strip()
         query_definition = self.query_definitions.get(normalized_key)
 
         if query_definition is None:
-            raise KeyError(
-                f"Không tồn tại predefined SQL query: {normalized_key}."
-            )
+            raise KeyError(f"Không tồn tại mẫu truy vấn có tên: {normalized_key}.")
 
         return query_definition
 
@@ -270,9 +281,7 @@ class PredefinedSqlQueryRegistry:
                     "key": query_definition.key,
                     "description": query_definition.description,
                     "parameters": parameter_catalog,
-                    "keyword_hints": list(
-                        query_definition.keyword_hints
-                    ),
+                    "keyword_hints": list(query_definition.keyword_hints),
                 }
             )
 
@@ -282,17 +291,12 @@ class PredefinedSqlQueryRegistry:
         """
         Liệt kê query key để API hoặc CLI hiển thị.
         """
-
         return sorted(self.query_definitions)
 
-    def _build_default_queries(
-        self,
-    ) -> dict[str, SqlQueryDefinition]:
+    def _build_default_queries(self) -> dict[str, SqlQueryDefinition]:
         """
-        Khai báo các query mẫu cho hệ thống WMS/AGV.
-
-        Hãy sửa tên view và cột theo database thật. Nên tạo các view read-only
-        chuyên cho RAG để tách hệ thống hỏi đáp khỏi schema nghiệp vụ phức tạp.
+        Khai báo các mẫu truy vấn cho hệ thống WMS/AGV.  
+        Nên tạo một view riêng cho RAG, tách biệt với nghiệp vụ sản xuất
         """
 
         query_definitions = [
@@ -303,20 +307,20 @@ class PredefinedSqlQueryRegistry:
                     "gồm mã nhiệm vụ, robot, trạng thái, vị trí nguồn và đích."
                 ),
                 sql_text="""
-SELECT TOP (100)
-    task_id,
-    task_code,
-    robot_code,
-    task_status,
-    source_location,
-    target_location,
-    created_at,
-    completed_at
-FROM dbo.vw_rag_agv_tasks
-WHERE created_at >= CONVERT(date, GETDATE())
-  AND created_at < DATEADD(day, 1, CONVERT(date, GETDATE()))
-ORDER BY created_at DESC
-""".strip(),
+                SELECT TOP (100)
+                    task_id,
+                    task_code,
+                    robot_code,
+                    task_status,
+                    source_location,
+                    target_location,
+                    created_at,
+                    completed_at
+                FROM dbo.vw_rag_agv_tasks
+                WHERE created_at >= CONVERT(date, GETDATE())
+                AND created_at < DATEADD(day, 1, CONVERT(date, GETDATE()))
+                ORDER BY created_at DESC
+                """.strip(),
                 keyword_hints=(
                     "hôm nay robot nhận lệnh gì",
                     "nhiệm vụ robot hôm nay",
@@ -331,17 +335,17 @@ ORDER BY created_at DESC
                     "cụ thể, ví dụ A1-2 hoặc F3-29."
                 ),
                 sql_text="""
-SELECT TOP (50)
-    location_code,
-    pallet_code,
-    material_code,
-    quantity,
-    stock_status,
-    updated_at
-FROM dbo.vw_rag_pallet_locations
-WHERE location_code = :location_code
-ORDER BY updated_at DESC
-""".strip(),
+                SELECT TOP (50)
+                    location_code,
+                    pallet_code,
+                    material_code,
+                    quantity,
+                    stock_status,
+                    updated_at
+                FROM dbo.vw_rag_pallet_locations
+                WHERE location_code = :location_code
+                ORDER BY updated_at DESC
+                """.strip(),
                 parameters=(
                     SqlParameterDefinition(
                         name="location_code",
@@ -366,18 +370,18 @@ ORDER BY updated_at DESC
                     "vị trí và trạng thái tồn kho."
                 ),
                 sql_text="""
-SELECT TOP (50)
-    qr_code,
-    material_code,
-    fabric_name,
-    pallet_code,
-    location_code,
-    stock_status,
-    updated_at
-FROM dbo.vw_rag_fabric_rolls
-WHERE qr_code = :qr_code
-ORDER BY updated_at DESC
-""".strip(),
+                SELECT TOP (50)
+                    qr_code,
+                    material_code,
+                    fabric_name,
+                    pallet_code,
+                    location_code,
+                    stock_status,
+                    updated_at
+                FROM dbo.vw_rag_fabric_rolls
+                WHERE qr_code = :qr_code
+                ORDER BY updated_at DESC
+                """.strip(),
                 parameters=(
                     SqlParameterDefinition(
                         name="qr_code",
@@ -404,21 +408,21 @@ ORDER BY updated_at DESC
                     "mã nhiệm vụ cụ thể."
                 ),
                 sql_text="""
-SELECT TOP (20)
-    task_id,
-    task_code,
-    robot_code,
-    task_status,
-    source_location,
-    target_location,
-    error_code,
-    error_message,
-    created_at,
-    completed_at
-FROM dbo.vw_rag_agv_tasks
-WHERE task_code = :task_code
-ORDER BY created_at DESC
-""".strip(),
+                SELECT TOP (20)
+                    task_id,
+                    task_code,
+                    robot_code,
+                    task_status,
+                    source_location,
+                    target_location,
+                    error_code,
+                    error_message,
+                    created_at,
+                    completed_at
+                FROM dbo.vw_rag_agv_tasks
+                WHERE task_code = :task_code
+                ORDER BY created_at DESC
+                """.strip(),
                 parameters=(
                     SqlParameterDefinition(
                         name="task_code",
@@ -443,19 +447,19 @@ ORDER BY created_at DESC
                     "robot, vị trí và thông báo lỗi."
                 ),
                 sql_text="""
-SELECT TOP (100)
-    task_code,
-    robot_code,
-    error_code,
-    error_message,
-    source_location,
-    target_location,
-    created_at
-FROM dbo.vw_rag_agv_tasks
-WHERE error_code IS NOT NULL
-  AND created_at >= DATEADD(hour, -24, GETDATE())
-ORDER BY created_at DESC
-""".strip(),
+                SELECT TOP (100)
+                    task_code,
+                    robot_code,
+                    error_code,
+                    error_message,
+                    source_location,
+                    target_location,
+                    created_at
+                FROM dbo.vw_rag_agv_tasks
+                WHERE error_code IS NOT NULL
+                AND created_at >= DATEADD(hour, -24, GETDATE())
+                ORDER BY created_at DESC
+                """.strip(),
                 keyword_hints=(
                     "lỗi robot gần đây",
                     "agv error",
@@ -465,6 +469,7 @@ ORDER BY created_at DESC
             ),
         ]
 
+        # Tạo và trả về một dict từ query_definitions bằng cách dùng query_definition.key làm key và query_definition làm value.
         return {
             query_definition.key: query_definition
             for query_definition in query_definitions
