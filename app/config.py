@@ -79,9 +79,8 @@ class Settings(BaseSettings):
     qdrant_collection_name: str = "wms_chunks_nomic_v2_768_v1"
     qdrant_upsert_batch_size: int = 128
 
-    # Số ứng viên lấy ở bước truy xuất nhanh.
+    # Số tài liệu lấy ở bước truy xuất nhanh.
     retrieval_top_k: int = 20
-
     # Số tài liệu cuối cùng sau rerank được gửi cho Llama.
     rerank_top_k: int = 5
 
@@ -124,7 +123,7 @@ class Settings(BaseSettings):
     # SQL Server
     # ------------------------------------------------------------------
     # SQL bị tắt mặc định. Chỉ bật khi đã cấu hình tài khoản chỉ có quyền SELECT.
-    sql_server_enabled: bool = False
+    sql_server_enabled: bool = True
 
     # Ví dụ dùng ODBC Driver 18:
     # DRIVER={ODBC Driver 18 for SQL Server};
@@ -134,7 +133,7 @@ class Settings(BaseSettings):
     # PWD=your_password;
     # Encrypt=yes;
     # TrustServerCertificate=yes;
-    sql_server_odbc_connection_string: str = ""
+    sql_server_odbc_connection_string: str = "abc"
 
     sql_server_pool_size: int = 5
     sql_server_max_overflow: int = 5
